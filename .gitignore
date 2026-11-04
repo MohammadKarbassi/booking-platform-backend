@@ -1,0 +1,14 @@
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+# heavy media (videos go to the bootcamp group)
+*.mp4
+*.zip
+video-font/
+# local AI-assistant notes
+.claude/
+AGENTS.md
+CLAUDE.md
+HANDOFF.md
+.DS_Store

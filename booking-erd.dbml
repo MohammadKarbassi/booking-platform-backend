@@ -1,0 +1,319 @@
+// ERD — Accommodation Booking Platform (Jabama / Airbnb-like) — Phase 1
+// Paste into https://dbdiagram.io to render and get a shareable link.
+
+Project booking_platform {
+  database_type: 'PostgreSQL'
+  Note: 'Phase 1: guest-facing site + single admin panel. No host panel yet.'
+}
+
+// ---------- Enums ----------
+Enum user_role {
+  guest
+  admin
+}
+
+Enum accommodation_status {
+  draft
+  active
+  inactive
+}
+
+Enum booking_status {
+  pending_payment
+  confirmed
+  cancelled
+  expired
+  completed
+}
+
+Enum payment_status {
+  initiated
+  success
+  failed
+  refunded
+}
+
+Enum review_status {
+  pending
+  approved
+  rejected
+}
+
+Enum waitlist_status {
+  waiting
+  fulfilled
+  expired
+  cancelled
+}
+
+Enum pricing_rule_type {
+  weekend
+  holiday
+  season
+  long_stay
+  last_minute
+  early_bird
+}
+
+Enum adjustment_type {
+  percent
+  fixed
+}
+
+// ---------- Users & Auth ----------
+Table users {
+  id bigint [pk, increment]
+  phone varchar(15) [not null, unique]
+  email varchar(255) [unique]
+  first_name varchar(100)
+  last_name varchar(100)
+  role user_role [not null, default: 'guest']
+  is_active boolean [not null, default: true]
+  created_at timestamp [not null]
+  updated_at timestamp
+}
+
+Table otp_codes {
+  id bigint [pk, increment]
+  phone varchar(15) [not null]
+  code_hash varchar(255) [not null]
+  expires_at timestamp [not null]
+  used_at timestamp
+  created_at timestamp [not null]
+  indexes {
+    (phone, created_at)
+  }
+}
+
+// ---------- Location ----------
+Table provinces {
+  id int [pk, increment]
+  name varchar(100) [not null, unique]
+}
+
+Table cities {
+  id int [pk, increment]
+  province_id int [not null, ref: > provinces.id]
+  name varchar(100) [not null]
+  indexes {
+    (province_id, name) [unique]
+  }
+}
+
+// ---------- Accommodation catalog ----------
+Table accommodation_types {
+  id int [pk, increment]
+  name varchar(50) [not null, unique, note: 'villa, suite, cabin, apartment, ...']
+  slug varchar(50) [not null, unique]
+}
+
+Table hosts {
+  id bigint [pk, increment]
+  user_id bigint [unique, ref: - users.id, note: 'NULL in phase 1; filled when host panel launches']
+  full_name varchar(150) [not null]
+  phone varchar(15) [not null]
+  created_at timestamp [not null]
+}
+
+Table accommodations {
+  id bigint [pk, increment]
+  host_id bigint [not null, ref: > hosts.id]
+  type_id int [not null, ref: > accommodation_types.id]
+  city_id int [not null, ref: > cities.id]
+  created_by bigint [not null, ref: > users.id, note: 'admin who registered it']
+  title varchar(200) [not null]
+  slug varchar(220) [not null, unique]
+  description text
+  address text [not null]
+  latitude decimal(9,6) [not null]
+  longitude decimal(9,6) [not null]
+  base_capacity smallint [not null]
+  max_capacity smallint [not null, note: 'CHECK max_capacity >= base_capacity']
+  bedrooms smallint [not null, default: 0]
+  beds smallint [not null, default: 0]
+  bathrooms smallint [not null, default: 0]
+  area_m2 int
+  base_price_per_night bigint [not null, note: 'Rial']
+  extra_guest_price bigint [not null, default: 0]
+  min_nights smallint [not null, default: 1]
+  check_in_time time [not null]
+  check_out_time time [not null]
+  house_rules text
+  status accommodation_status [not null, default: 'draft']
+  created_at timestamp [not null]
+  updated_at timestamp
+  indexes {
+    (city_id, type_id, status)
+    (latitude, longitude)
+  }
+}
+
+Table accommodation_images {
+  id bigint [pk, increment]
+  accommodation_id bigint [not null, ref: > accommodations.id]
+  url varchar(500) [not null]
+  sort_order smallint [not null, default: 0]
+  is_cover boolean [not null, default: false]
+}
+
+Table amenities {
+  id int [pk, increment]
+  name varchar(100) [not null, unique, note: 'pool, wifi, parking, BBQ, ...']
+  icon varchar(100)
+}
+
+Table accommodation_amenities {
+  accommodation_id bigint [ref: > accommodations.id]
+  amenity_id int [ref: > amenities.id]
+  indexes {
+    (accommodation_id, amenity_id) [pk]
+  }
+}
+
+// Per-date price override or blocked date set by admin
+Table accommodation_calendar {
+  accommodation_id bigint [ref: > accommodations.id]
+  date date
+  price_override bigint [note: 'NULL = use base_price_per_night']
+  is_blocked boolean [not null, default: false]
+  indexes {
+    (accommodation_id, date) [pk]
+  }
+}
+
+// ---------- Booking & Payment ----------
+Table bookings {
+  id bigint [pk, increment]
+  booking_code varchar(20) [not null, unique]
+  user_id bigint [not null, ref: > users.id]
+  accommodation_id bigint [not null, ref: > accommodations.id]
+  check_in date [not null]
+  check_out date [not null, note: 'CHECK check_out > check_in']
+  guests_count smallint [not null]
+  total_price bigint [not null, note: 'snapshot at booking time']
+  status booking_status [not null, default: 'pending_payment']
+  expires_at timestamp [note: 'hold time for pending_payment']
+  cancelled_at timestamp
+  created_at timestamp [not null]
+  indexes {
+    (id, accommodation_id) [unique, note: 'target of composite FK from booking_nights']
+    (user_id)
+    (accommodation_id, check_in)
+  }
+}
+
+// One row per occupied night. UNIQUE(accommodation_id, night_date)
+// makes double-booking impossible at database level.
+Table booking_nights {
+  booking_id bigint [not null]
+  accommodation_id bigint [not null]
+  night_date date [not null]
+  price bigint [not null, note: 'price of this night at booking time']
+  pricing_rule_id bigint [ref: > pricing_rules.id, note: 'rule that set this night price; NULL = base or calendar price']
+  indexes {
+    (accommodation_id, night_date) [pk]
+    (booking_id)
+  }
+}
+
+Ref: booking_nights.(booking_id, accommodation_id) > bookings.(id, accommodation_id) [delete: cascade]
+
+Table payments {
+  id bigint [pk, increment]
+  booking_id bigint [ref: > bookings.id, note: 'NULL while payment belongs only to a waitlist request']
+  waitlist_request_id bigint [ref: > waitlist_requests.id, note: 'CHECK booking_id IS NOT NULL OR waitlist_request_id IS NOT NULL']
+  amount bigint [not null]
+  gateway varchar(50) [not null]
+  authority varchar(100) [unique, note: 'token from payment gateway']
+  ref_id varchar(100) [unique, note: 'bank tracking code after success']
+  status payment_status [not null, default: 'initiated']
+  paid_at timestamp
+  refunded_at timestamp
+  created_at timestamp [not null]
+}
+
+// ---------- Prepaid waitlist with automatic booking ----------
+// Guest pays for full dates; if nights free up before expires_at,
+// the oldest matching request is booked automatically, else refunded.
+Table waitlist_requests {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  accommodation_id bigint [not null, ref: > accommodations.id]
+  check_in date [not null]
+  check_out date [not null, note: 'CHECK check_out > check_in']
+  guests_count smallint [not null]
+  held_amount bigint [not null, note: 'price snapshot paid upfront']
+  status waitlist_status [not null, default: 'waiting']
+  expires_at timestamp [not null, note: 'deadline; after it the money is refunded']
+  booking_id bigint [unique, ref: - bookings.id, note: 'filled when auto-booked']
+  created_at timestamp [not null, note: 'queue order (first come, first served)']
+  indexes {
+    (accommodation_id, status, created_at)
+    (user_id)
+  }
+}
+
+// ---------- Nearby attractions ----------
+Table poi_categories {
+  id int [pk, increment]
+  name varchar(50) [not null, unique, note: 'beach, restaurant, historic site, ...']
+}
+
+Table points_of_interest {
+  id bigint [pk, increment]
+  category_id int [not null, ref: > poi_categories.id]
+  city_id int [not null, ref: > cities.id]
+  name varchar(200) [not null]
+  latitude decimal(9,6) [not null]
+  longitude decimal(9,6) [not null]
+  description text
+  indexes {
+    (city_id, category_id)
+  }
+  Note: 'Distance to an accommodation is computed from coordinates, not stored.'
+}
+
+// ---------- Rule-based pricing ----------
+Table holidays {
+  date date [pk]
+  title varchar(150) [not null, note: 'Nowruz, official holidays, ...']
+  is_official boolean [not null, default: true]
+}
+
+Table pricing_rules {
+  id bigint [pk, increment]
+  accommodation_id bigint [not null, ref: > accommodations.id]
+  rule_type pricing_rule_type [not null]
+  adjustment_type adjustment_type [not null]
+  value int [not null, note: 'positive = increase, negative = discount']
+  start_date date [note: 'season rules']
+  end_date date
+  min_nights smallint [note: 'long_stay rules']
+  days_before_checkin smallint [note: 'last_minute / early_bird rules']
+  priority smallint [not null, default: 0, note: 'highest priority wins for a night']
+  is_active boolean [not null, default: true]
+  created_at timestamp [not null]
+  indexes {
+    (accommodation_id, is_active)
+  }
+}
+
+// ---------- Engagement ----------
+Table reviews {
+  id bigint [pk, increment]
+  booking_id bigint [not null, unique, ref: - bookings.id, note: 'only real guests, one review per stay']
+  rating smallint [not null, note: 'CHECK 1..5']
+  comment text
+  status review_status [not null, default: 'pending']
+  admin_reply text
+  created_at timestamp [not null]
+}
+
+Table favorites {
+  user_id bigint [ref: > users.id]
+  accommodation_id bigint [ref: > accommodations.id]
+  created_at timestamp [not null]
+  indexes {
+    (user_id, accommodation_id) [pk]
+  }
+}
