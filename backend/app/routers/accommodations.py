@@ -8,7 +8,7 @@ from ..db import get_db
 from ..models import (Accommodation, AccommodationAmenity, AccommodationCalendar, AccommodationStatus, Booking,
                       BookingNight, PointOfInterest, Review, ReviewStatus)
 from ..pricing import nights_between, quote
-from ..serializers import acc_card, rating_of
+from ..serializers import acc_card, acc_detail
 from ..services import sweep
 
 router = APIRouter(prefix="/accommodations", tags=["Accommodations"])
@@ -68,14 +68,7 @@ def search(city_id: int | None = None, province_id: int | None = None, type_id: 
 @router.get("/{acc_id}", summary="Full details: images, amenities, host, rules, rating, map location")
 def detail(acc_id: int, db: Session = Depends(get_db)):
     a = get_active(db, acc_id)
-    return {**acc_card(a), "description": a.description, "address": a.address,
-            "base_capacity": a.base_capacity, "beds": a.beds, "bathrooms": a.bathrooms, "area_m2": a.area_m2,
-            "extra_guest_price": a.extra_guest_price, "min_nights": a.min_nights,
-            "check_in_time": a.check_in_time, "check_out_time": a.check_out_time, "house_rules": a.house_rules,
-            "host": {"id": a.host.id, "full_name": a.host.full_name},
-            "images": [{"url": i.url, "is_cover": i.is_cover} for i in a.images],
-            "amenities": [{"id": m.id, "name": m.name, "icon": m.icon} for m in a.amenities],
-            "rating": rating_of(db, a.id)}
+    return acc_detail(a)
 
 
 @router.get("/{acc_id}/reviews", summary="Approved reviews")

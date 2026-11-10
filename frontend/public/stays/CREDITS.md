@@ -1,0 +1,16 @@
+# Photo credits (Wikimedia Commons)
+- ramsar: "Mazandaran Ramsar Coast", hannaneh710, CC BY 2.0
+- ramsar2: "Ramsar Coast Caspian Sea", Blondin Rikard, CC BY 2.0
+- kelardasht, kelardasht2: Alireza Javaheri (panoramio), CC BY 3.0
+- masuleh: "Masuleh Village", Mojtaba Matboyi, CC BY-SA 4.0
+- masuleh2: "MasulehView", Far-gh, CC BY-SA 4.0
+- kandovan: "Kandovan troglodyte village", Stephan Klage, public domain
+- kandovan2: "Kandovan (11)", Ata Dadashi, CC BY 4.0
+- yazd: "Iran Yazd", ali reza, CC BY 2.0; yazd2: Adam Jones, CC BY-SA 2.0
+- kashan, kashan2: "Tabatabaei House, Kashan", Bernard Gagnon, CC BY-SA 4.0
+- qeshm, qeshm2: "Stars Valley (Qeshm)", Petr Adam Dohnálek, CC BY-SA 3.0 CZ
+- isfahan: Amir Pashaei, CC BY-SA 4.0; isfahan2: Arad, CC BY-SA 3.0
+- shiraz: "Eram Garden Shiraz", Mostafameraji, CC BY-SA 4.0
+- filband: "Filband Mazandaran", Mostafameraji, CC0
+- abyaneh: "Abyaneh", Diego Delso, CC BY-SA 4.0
+- tochal: "Tochal, Tehran", Httitude, CC BY-SA 3.0

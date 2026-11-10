@@ -3,13 +3,14 @@ from datetime import date, datetime, time
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import exists, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, object_session
 
 from ..db import get_db
-from ..models import BookingNight, User, WaitlistRequest, WaitlistStatus
+from ..models import Accommodation, BookingNight, User, WaitlistRequest, WaitlistStatus
 from ..pricing import quote
 from ..routers.accommodations import get_active
 from ..security import current_user
+from ..serializers import acc_card
 from ..services import refund_payments, sweep
 
 router = APIRouter(prefix="/waitlist", tags=["Waitlist"])
@@ -23,7 +24,9 @@ class WaitlistCreate(BaseModel):
 
 
 def out(w: WaitlistRequest) -> dict:
-    return {"id": w.id, "accommodation_id": w.accommodation_id, "check_in": w.check_in, "check_out": w.check_out,
+    acc = object_session(w).get(Accommodation, w.accommodation_id)
+    return {"id": w.id, "accommodation_id": w.accommodation_id, "accommodation_title": acc.title,
+            "cover_image": acc_card(acc)["cover_image"], "check_in": w.check_in, "check_out": w.check_out,
             "guests_count": w.guests_count, "held_amount": w.held_amount, "status": w.status,
             "expires_at": w.expires_at, "booking_id": w.booking_id,
             "paid": any(p.status.value in ("success", "refunded") for p in w.payments)}

@@ -13,7 +13,7 @@ from ..models import (Accommodation, AccommodationCalendar, AccommodationImage, 
                       PricingRuleType, Review, ReviewStatus, User)
 from ..pricing import nights_between
 from ..security import admin_user
-from ..serializers import acc_card, booking_out
+from ..serializers import acc_card, acc_detail, booking_out
 
 router = APIRouter(prefix="/admin", tags=["Admin"], dependencies=[Depends(admin_user)])
 
@@ -93,6 +93,7 @@ class AccommodationPatch(BaseModel):
     house_rules: str | None = None
     status: AccommodationStatus | None = None
     amenity_ids: list[int] | None = None
+    images: list[ImageIn] | None = None
 
 
 def amenities_by_ids(db: Session, ids: list[int]) -> list[Amenity]:
@@ -105,6 +106,14 @@ def amenities_by_ids(db: Session, ids: list[int]) -> list[Amenity]:
 @router.get("/accommodations", summary="All accommodations, any status")
 def list_accommodations(db: Session = Depends(get_db)):
     return [acc_card(a) for a in db.scalars(select(Accommodation).order_by(Accommodation.id))]
+
+
+@router.get("/accommodations/{acc_id}", summary="Full details of one accommodation, any status")
+def get_accommodation(acc_id: int, db: Session = Depends(get_db)):
+    a = db.get(Accommodation, acc_id)
+    if not a:
+        raise HTTPException(404, "Accommodation not found")
+    return acc_detail(a)
 
 
 @router.post("/accommodations", status_code=201, summary="Register an accommodation with amenities and images")
@@ -126,6 +135,9 @@ def update_accommodation(acc_id: int, body: AccommodationPatch, db: Session = De
     data = body.model_dump(exclude_unset=True)
     if "amenity_ids" in data:
         a.amenities = amenities_by_ids(db, data.pop("amenity_ids"))
+    if data.pop("images", None) is not None:
+        a.images = [AccommodationImage(url=i.url, is_cover=i.is_cover, sort_order=n)
+                    for n, i in enumerate(body.images)]
     for k, v in data.items():
         setattr(a, k, v)
     commit(db)
@@ -266,6 +278,8 @@ def complete_booking(booking_id: int, db: Session = Depends(get_db)):
 @router.get("/reviews")
 def list_reviews(status: ReviewStatus = ReviewStatus.pending, db: Session = Depends(get_db)):
     return [{"id": r.id, "booking_id": r.booking_id, "accommodation_id": r.booking.accommodation_id,
+             "accommodation_title": r.booking.accommodation.title, "guest": r.booking.user.first_name,
+             "created_at": r.created_at,
              "rating": r.rating, "comment": r.comment, "status": r.status, "admin_reply": r.admin_reply}
             for r in db.scalars(select(Review).where(Review.status == status))]
 
