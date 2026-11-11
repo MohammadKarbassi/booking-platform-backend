@@ -12,3 +12,6 @@ AGENTS.md
 CLAUDE.md
 HANDOFF.md
 .DS_Store
+
+# Vercel
+.vercel/
