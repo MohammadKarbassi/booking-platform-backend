@@ -14,13 +14,18 @@
 
 import { cn } from "@/lib/utils";
 
-/** Hand-drawn loop in a 200×120 box: starts at the pin (top right) and goes round clockwise on screen. */
-const LOOP = "M 176 20 C 206 46 198 102 110 110 C 30 117 -4 84 10 50 C 24 16 88 4 148 10 C 166 12 178 18 184 26";
+/**
+ * Hand-drawn loop in a 290×120 box (about the word's own proportions, so the stretched stroke stays even):
+ * starts at the pin (top right) and goes round clockwise on screen.
+ * No vector-effect: non-scaling-stroke here. With it Chrome measures the dash in device pixels and ignores
+ * pathLength, so on a 2× (Retina) screen only part of the loop was ever drawn.
+ */
+const LOOP = "M 255.2 20 C 298.7 46 287.1 102 159.5 110 C 43.5 117 -5.8 84 14.5 50 C 34.8 16 127.6 4 214.6 10 C 240.7 12 258.1 18 266.8 26";
 
 function Loop({ play }: { play: boolean }) {
   return (
     <svg
-      viewBox="0 0 200 120"
+      viewBox="0 0 290 120"
       preserveAspectRatio="none"
       aria-hidden
       className="pointer-events-none absolute -inset-x-[0.38em] -top-[0.12em] -bottom-[0.02em] z-20 h-[calc(100%+0.14em)] w-[calc(100%+0.76em)] overflow-visible"
@@ -29,14 +34,13 @@ function Loop({ play }: { play: boolean }) {
         d={LOOP}
         fill="none"
         stroke="var(--saffron)"
-        strokeWidth="5"
+        strokeWidth="6.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
         pathLength={1000}
         style={{ ["--route-len" as string]: 1000, strokeDasharray: 1000 }}
         className={cn(
-          "[stroke-dashoffset:1000] [stroke-width:clamp(4px,0.09em,7px)]",
+          "[stroke-dashoffset:1000]",
           play && "motion-safe:animate-[route-draw_.8s_.95s_cubic-bezier(.55,.05,.35,1)_forwards] motion-reduce:[stroke-dashoffset:0]",
         )}
       />
