@@ -17,7 +17,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BrandMark } from "@/components/brand";
 import { fa, tomanShort } from "@/lib/format";
-import { scapeForCity, scapeLabel, useSound } from "@/lib/sound";
+import { scapeFor, soundRank, useSound } from "@/lib/sound";
+import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 import type { StayCard } from "@/lib/types";
 
 const CARD_RATIO = 0.72; // portrait postcard
@@ -94,8 +95,10 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
 
   const items = useMemo(() => {
     if (!stays.length) return [];
+    // best-sounding places first, like a playlist
+    const ranked = [...stays].sort((a, b) => soundRank(a.slug, a.city) - soundRank(b.slug, b.city));
     const out: StayCard[] = [];
-    while (out.length < MIN_CARDS) out.push(...stays);
+    while (out.length < MIN_CARDS) out.push(...ranked);
     return out.slice(0, Math.max(MIN_CARDS, stays.length));
   }, [stays]);
   const n = items.length;
@@ -280,10 +283,13 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
       }
     };
     const onWheel = (e: WheelEvent) => {
-      if (!s.introAt) return;
+      // the page continues below the deck, so an ordinary (vertical) wheel scrolls the page;
+      // a sideways trackpad swipe or shift+wheel turns the cards
+      const sideways = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
+      if (!s.introAt || !sideways) return;
       e.preventDefault();
       endHover();
-      s.target += ((e.deltaX + e.deltaY) * (e.deltaMode === 1 ? 30 : 1)) / s.step;
+      s.target += ((e.shiftKey ? e.deltaY : e.deltaX) * (e.deltaMode === 1 ? 30 : 1)) / s.step;
       snapSoon();
     };
     const onMove = (e: PointerEvent) => {
@@ -385,7 +391,7 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
                 if (e.pointerType !== "mouse" || st.current.dragging || st.current.scrolling || !st.current.introAt) return;
                 st.current.hovered = i;
                 setAppBackground(s.cover_image ? (colors.current.get(s.cover_image) ?? null) : null);
-                sound.play(scapeForCity(s.city));
+                sound.play(scapeFor(s.slug, s.city));
               }}
               onPointerMove={(e) => {
                 const r = e.currentTarget.getBoundingClientRect();
@@ -432,20 +438,44 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
                       <span>شبی از {tomanShort(s.base_price_per_night)} تومان</span>
                     </p>
                   </div>
-
-                  {/* what this card sounds like (only while it is playing) */}
-                  <span
-                    className="absolute top-[4%] right-[4%] rounded-full bg-ink/75 px-2.5 py-1 text-[11px] font-bold text-white opacity-0 transition-opacity group-hover:opacity-100"
-                    aria-hidden
-                  >
-                    {sound.enabled ? `♪ ${scapeLabel[scapeForCity(s.city)]}` : "صدا خاموش است"}
-                  </span>
                 </div>
               </div>
             </Link>
           );
         })}
       </div>
+
+      {/* previous / next, for mouse users now that the wheel scrolls the page */}
+      <div className="absolute inset-x-0 top-[58%] z-[420] flex -translate-y-1/2 justify-between px-3 sm:px-6" data-sfx="off">
+        <button
+          type="button"
+          onClick={() => go(-1)}
+          aria-label="کارت قبلی"
+          className="pointer-events-auto grid size-12 place-items-center rounded-full border-2 border-ink bg-card/90 shadow-[var(--shadow-journal-sm)] backdrop-blur transition hover:scale-105 active:scale-95"
+        >
+          <ChevronRight className="size-6" />
+        </button>
+        <button
+          type="button"
+          onClick={() => go(1)}
+          aria-label="کارت بعدی"
+          className="pointer-events-auto grid size-12 place-items-center rounded-full border-2 border-ink bg-card/90 shadow-[var(--shadow-journal-sm)] backdrop-blur transition hover:scale-105 active:scale-95"
+        >
+          <ChevronLeft className="size-6" />
+        </button>
+      </div>
+
+      {/* browsers keep audio closed until the first click; say so instead of staying mysteriously silent */}
+      {sound.enabled && !sound.unlocked && loaderGone && (
+        <button
+          type="button"
+          onClick={() => sound.sfx("click")}
+          className="absolute top-[3%] left-4 z-[430] hidden items-center gap-2 rounded-full border-[1.5px] border-ink bg-card/90 px-3 py-1.5 text-sm font-semibold backdrop-blur sm:flex"
+        >
+          <Volume2 className="size-4 text-lapis motion-safe:animate-pulse" />
+          برای شنیدن صدای هر مکان، یک بار کلیک کن
+        </button>
+      )}
 
       <p className="sr-only" aria-live="polite">
         {current ? `کارت ${fa(active + 1)} از ${fa(n)}: ${current.title}، ${current.city}` : ""}

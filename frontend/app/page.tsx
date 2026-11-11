@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowLeft, Compass } from "lucide-react";
+import { ArrowLeft, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
 import { StayPostcard, StayPostcardSkeleton } from "@/components/stay-postcard";
@@ -61,7 +61,7 @@ export default function Home() {
   return (
     <>
       {/* hero: the postcard deck (see components/postcard-deck.tsx) */}
-      <section className="relative h-[calc(100svh-4rem)] min-h-[600px] border-b-2 border-ink" aria-label="کارت‌پستال‌های دور ایران">
+      <section className="relative h-[calc(92svh-4rem)] min-h-[580px] border-b-2 border-ink" aria-label="کارت‌پستال‌های دور ایران">
         {all.isError ? (
           <div className="grid h-full place-items-center px-4 text-center">
             <div>
@@ -74,12 +74,6 @@ export default function Home() {
           <PostcardDeck stays={stays} title={<HeroTitle />} />
         )}
         <JournalBar />
-        <a
-          href="#discover"
-          className="absolute bottom-7 left-6 z-[460] hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold app-fg opacity-70 hover:opacity-100 lg:flex"
-        >
-          <ArrowDown className="size-4 motion-safe:animate-bounce" /> قطب‌نما و نقشه
-        </a>
       </section>
 
       {/* a plain search for whoever skips the deck */}

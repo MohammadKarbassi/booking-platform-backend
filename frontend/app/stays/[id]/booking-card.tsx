@@ -26,14 +26,12 @@ import { useAuth } from "@/lib/auth";
 import { fa, jWeekday, parseDate, priceSourceLabel, toman, tomanShort } from "@/lib/format";
 import { startPayment } from "@/lib/payments";
 import { useCalendar, useQuote } from "@/lib/queries";
-import { useSound } from "@/lib/sound";
 import type { Booking, StayDetail, WaitlistRequest } from "@/lib/types";
 import { isoDate, today } from "@/lib/format";
 
 export function BookingCard({ stay, initial }: { stay: StayDetail; initial: Dates & { guests?: number } }) {
   const router = useRouter();
   const { user } = useAuth();
-  const { stamp } = useSound();
   const [dates, setDates] = useState<Dates>({ check_in: initial.check_in, check_out: initial.check_out });
   const [guests, setGuests] = useState(Math.min(initial.guests ?? 2, stay.max_capacity));
   const [waitOffer, setWaitOffer] = useState(false);
@@ -60,7 +58,6 @@ export function BookingCard({ stay, initial }: { stay: StayDetail; initial: Date
         body: { accommodation_id: stay.id, check_in: dates.check_in, check_out: dates.check_out, guests_count: guests },
       }),
     onSuccess: (b) => {
-      stamp();
       toast.success(`رزرو ${b.booking_code} ثبت شد؛ ۱۵ دقیقه برای پرداخت وقت داری.`);
       router.push(`/checkout/${b.id}`);
     },
@@ -81,7 +78,6 @@ export function BookingCard({ stay, initial }: { stay: StayDetail; initial: Date
       return startPayment({ waitlist_request_id: w.id });
     },
     onSuccess: (url) => {
-      stamp();
       router.push(url);
     },
     onError: (e) => toast.error(errorMessage(e)),

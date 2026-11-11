@@ -11,7 +11,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { StampSeal } from "@/components/stamp-seal";
 import { api, errorMessage } from "@/lib/api";
 import { fa, toman } from "@/lib/format";
-import { useSound } from "@/lib/sound";
 import type { PaymentResult } from "@/lib/types";
 
 /*
@@ -25,12 +24,10 @@ export function Gateway() {
   const kind = sp.get("kind") === "waitlist" ? "waitlist" : "booking";
   const id = sp.get("id");
   const qc = useQueryClient();
-  const { stamp } = useSound();
 
   const cb = useMutation({
     mutationFn: (status: "OK" | "NOK") => api<PaymentResult>("/payments/callback", { query: { authority, status } }),
-    onSuccess: (r) => {
-      if (r.status === "success") stamp();
+    onSuccess: () => {
       qc.invalidateQueries();
     },
   });

@@ -36,7 +36,7 @@ export function LandmarkFinder() {
   const max = Math.max(1, ...(near.data?.items ?? []).map((s) => s.distance_km ?? 0));
 
   return (
-    <section className="mx-auto max-w-7xl px-4 pt-24" aria-labelledby="landmarks-title">
+    <section id="landmarks" className="mx-auto max-w-7xl scroll-mt-20 px-4 pt-24" aria-labelledby="landmarks-title">
       <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
           <p className="text-sm font-bold text-anar">اول جا، بعد جای خواب</p>

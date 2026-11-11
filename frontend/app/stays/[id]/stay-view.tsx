@@ -40,7 +40,6 @@ import { BookingCard } from "./booking-card";
 import { clock, fa, isoDate, jDate, parseDate, today, tomanShort } from "@/lib/format";
 import { amenityIcon } from "@/lib/icons";
 import { useCalendar, useNearby, useReviews, useStay } from "@/lib/queries";
-import { scapeForCity, scapeLabel, useSound } from "@/lib/sound";
 import type { CalendarDay, StayDetail } from "@/lib/types";
 
 function Stars({ value, size = "size-4" }: { value: number; size?: string }) {
@@ -122,7 +121,6 @@ export function StayView({ id }: { id: number }) {
   const nearby = useNearby(id, 40);
   const reviews = useReviews(id);
   const [active, setActive] = useState<number | null>(null);
-  const sound = useSound();
 
   useEffect(() => {
     if (stay.data) document.title = `${stay.data.title} | دور ایران`;
@@ -151,7 +149,6 @@ export function StayView({ id }: { id: number }) {
     );
 
   const s = stay.data;
-  const scape = scapeForCity(s.city);
   const facts = [
     { icon: Users, text: `${fa(s.base_capacity)} نفر، تا ${fa(s.max_capacity)} نفر` },
     { icon: DoorOpen, text: `${fa(s.bedrooms)} اتاق خواب` },
@@ -203,15 +200,6 @@ export function StayView({ id }: { id: number }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {sound.enabled && (
-            <Button
-              variant="outline"
-              className="rounded-full border-ink"
-              onClick={() => (sound.playing ? sound.stop() : sound.play(scape))}
-            >
-              {sound.playing ? "قطع صدا" : `پخش ${scapeLabel[scape]}`}
-            </Button>
-          )}
           <FavoriteButton stayId={s.id} className="size-10" />
         </div>
       </div>

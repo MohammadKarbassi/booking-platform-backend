@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { AudioLines, MapPin, Star } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import { distanceLabel } from "@/components/discovery-radar";
 import { FavoriteButton } from "@/components/favorite-button";
 import { Postmark } from "@/components/postmark";
 import { fa, tomanShort } from "@/lib/format";
-import { scapeForCity, scapeLabel, useSound } from "@/lib/sound";
+import { scapeFor, useSound } from "@/lib/sound";
 import type { StayCard } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -14,8 +14,7 @@ const TILTS = ["-rotate-[1.6deg]", "rotate-[1.2deg]", "-rotate-[0.6deg]", "rotat
 
 export function StayPostcard({ stay, index = 0, query = "" }: { stay: StayCard; index?: number; query?: string }) {
   const sound = useSound();
-  const scape = scapeForCity(stay.city);
-  const listening = sound.playing === scape;
+  const scape = scapeFor(stay.slug, stay.city);
 
   return (
     <article
@@ -55,17 +54,6 @@ export function StayPostcard({ stay, index = 0, query = "" }: { stay: StayCard; 
 
           <FavoriteButton stayId={stay.id} className="absolute top-2.5 right-2.5" />
 
-          <div
-            className={cn(
-              "absolute right-2.5 bottom-2.5 flex items-center gap-1.5 rounded-full bg-ink/80 px-2.5 py-1 text-[11px] font-semibold text-white opacity-0 transition-opacity",
-              sound.enabled && "group-hover:opacity-100",
-              listening && "opacity-100",
-            )}
-            aria-hidden
-          >
-            <AudioLines className={cn("size-3.5", listening && "animate-pulse")} />
-            {scapeLabel[scape]}
-          </div>
         </div>
 
         <div className="px-1 pt-3">

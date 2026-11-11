@@ -16,7 +16,6 @@ import { Postmark } from "@/components/postmark";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { fa, jShort, today } from "@/lib/format";
-import { useSound } from "@/lib/sound";
 import type { User } from "@/lib/types";
 
 const DEMO = [
@@ -38,7 +37,6 @@ export function LoginFlow() {
   const sp = useSearchParams();
   const next = sp.get("next") || "/";
   const { user, signIn } = useAuth();
-  const { stamp } = useSound();
   const [phone, setPhone] = useState("");
   const [step, setStep] = useState<"phone" | "code">("phone");
   const [code, setCode] = useState("");
@@ -77,7 +75,6 @@ export function LoginFlow() {
         body: { phone, code: c },
       }),
     onSuccess: (r) => {
-      stamp();
       setSignedInHere(true);
       signIn(r.access_token, r.user);
       if (r.is_new_user || !r.user.first_name) {

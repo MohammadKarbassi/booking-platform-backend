@@ -36,10 +36,11 @@ def run(reset: bool = False):
                   User(phone="09127777777", first_name="نگار", last_name="صادقی")]
 
         provinces = {n: Province(name=n) for n in ["مازندران", "گیلان", "تهران", "اصفهان", "یزد", "فارس", "هرمزگان",
-                                                  "آذربایجان شرقی"]}
+                                                  "آذربایجان شرقی", "لرستان"]}
         city_specs = [("رامسر", "مازندران"), ("کلاردشت", "مازندران"), ("فیلبند", "مازندران"), ("ماسوله", "گیلان"),
                       ("تهران", "تهران"), ("اصفهان", "اصفهان"), ("کاشان", "اصفهان"), ("ابیانه", "اصفهان"),
-                      ("یزد", "یزد"), ("شیراز", "فارس"), ("قشم", "هرمزگان"), ("کندوان", "آذربایجان شرقی")]
+                      ("یزد", "یزد"), ("شیراز", "فارس"), ("قشم", "هرمزگان"), ("کندوان", "آذربایجان شرقی"),
+                      ("بیشه", "لرستان"), ("بندر انزلی", "گیلان")]
         city = {n: City(name=n, province=provinces[p]) for n, p in city_specs}
 
         villa, suite, cabin, apt, eco = (AccommodationType(name=n, slug=s) for n, s in
@@ -147,6 +148,22 @@ def run(reset: bool = False):
                 max_capacity=4, bedrooms=2, beds=2, bathrooms=2, area_m2=110, base_price_per_night=25_000_000,
                 extra_guest_price=2_000_000, amenities=[am["wifi"], am["ac"], am["kitchen"], am["parking"]],
                 images=imgs("tochal")),
+            # chosen for how they sound: a waterfall and a lagoon
+            acc(host=host3, type=cabin, city=city["بیشه"], title="کلبهٔ آبشار بیشه", slug="bisheh-waterfall-cabin",
+                description="کلبه‌ای چوبی در درهٔ بیشه؛ شب‌ها با صدای آبشاری که از دل کوه بیرون می‌ریزد می‌خوابی و "
+                            "صبح‌ها قطار از کنار جنگل بلوط می‌گذرد.",
+                address="لرستان، روستای بیشه، کنار ایستگاه قطار", latitude=33.0805, longitude=48.5470,
+                base_capacity=2, max_capacity=4, bedrooms=1, beds=2, bathrooms=1, area_m2=55,
+                base_price_per_night=10_000_000, extra_guest_price=900_000,
+                amenities=[am["heating"], am["breakfast"], am["bbq"]], images=imgs("bisheh", "bisheh2")),
+            acc(host=host2, type=eco, city=city["بندر انزلی"], title="خانهٔ قایقی تالاب انزلی",
+                slug="anzali-lagoon-house",
+                description="خانه‌ای چوبی روی پایه‌ها، لب تالاب. صبح با صدای پرنده‌های آبزی و غوک‌ها بیدار شو و با قایق "
+                            "میان نیلوفرهای آبی برو.",
+                address="بندر انزلی، حاشیهٔ تالاب، اسکلهٔ قایقرانی", latitude=37.4560, longitude=49.4440,
+                base_capacity=2, max_capacity=5, bedrooms=2, beds=3, bathrooms=1, area_m2=75,
+                base_price_per_night=12_000_000, extra_guest_price=1_000_000,
+                amenities=[am["wifi"], am["breakfast"], am["parking"]], images=imgs("anzali", "anzali2")),
         ]
         db.add_all([a1, a2, a3, *others])
         db.flush()
@@ -210,6 +227,13 @@ def run(reset: bool = False):
             ("طبیعت", "تهران", "دربند", 35.8180, 51.4240),
             ("موزه", "تهران", "کاخ سعدآباد", 35.8230, 51.4210),
             ("جاذبهٔ تاریخی", "تهران", "برج میلاد", 35.7448, 51.3753),
+            ("طبیعت", "بیشه", "آبشار بیشه", 33.0839, 48.5428),
+            ("طبیعت", "بیشه", "جنگل بلوط زاگرس", 33.0700, 48.5600),
+            ("طبیعت", "بندر انزلی", "تالاب انزلی", 37.4480, 49.4180),
+            ("طبیعت", "بندر انزلی", "تالاب سنگاچین", 37.4300, 49.3900),
+            ("موزه", "بندر انزلی", "آکواریوم بندر انزلی", 37.4740, 49.4610),
+            ("بازار", "بندر انزلی", "بازار ماهی‌فروشان انزلی", 37.4700, 49.4630),
+            ("ساحل", "بندر انزلی", "ساحل انزلی", 37.4800, 49.4500),
         ]
         db.add_all(PointOfInterest(category=cat[c], city=city[ci], name=n, latitude=la, longitude=lo)
                    for c, ci, n, la, lo in pois)
@@ -225,7 +249,10 @@ def run(reset: bool = False):
                                                                              "داریم درست می‌کنیم."),
                  (others[2], guests[2], 5, "ارسی‌ها و نور صبح را هیچ‌وقت فراموش نمی‌کنم.", None),
                  (others[3], guests[1], 4, "شام ماهی میزبان عالی بود. هوا خیلی گرم است، تابستان نروید.",
-                  None)]
+                  None),
+                 (others[-2], guests[2], 5, "صدای آبشار تمام شب در گوشم بود. بهترین خواب عمرم.", None),
+                 (others[-1], guests[0], 5, "قایق‌سواری صبح میان نیلوفرها و صدای پرنده‌ها فراموش‌نشدنی بود.",
+                  "ممنون که نوشتید؛ فصل نیلوفر تابستان است.")]
         for n, (a, u, rating, comment, reply) in enumerate(stays):
             ci = date.today() - timedelta(days=60 + n * 9)
             nights = [ci + timedelta(days=i) for i in range(max(2, a.min_nights))]

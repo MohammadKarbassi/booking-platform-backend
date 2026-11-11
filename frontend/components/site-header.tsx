@@ -38,7 +38,8 @@ const NAV = [
 ];
 
 function SoundToggle() {
-  const { enabled, toggle } = useSound();
+  const { available, enabled, toggle } = useSound();
+  if (!available) return null; // sound lives only on the home page
   return (
     <Tooltip>
       <TooltipTrigger asChild>
