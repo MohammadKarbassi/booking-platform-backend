@@ -1,112 +1,56 @@
 "use client";
 
 /*
-  The site's logotype: «ایران؛» over «دورت بگردم», a ring orbiting «ایران» and a red map pin on its first letter.
+  The site's logotype: «ایران؛» over «دورت بگردم».
+  "دورت بگردم" means "let me circle around you", so a red map pin sits on «ایران» and, from its tip,
+  a hand-drawn saffron loop is drawn once around the word (down the right side, along the bottom,
+  up the left, across the top, back to the pin), after the supplied GIF.
   Type: Vazirmatn Black for «ایران؛», Vazirmatn Medium for «دورت بگردم» (the self-hosted font in app/fonts).
 
   Entrance (starts when `play` turns true, i.e. after the deck's loader):
-  «ایران؛» pops in → its orbit ring draws itself and the red traveller starts circling → «دورت», «بگردم» rise in
-  below → the pin drops onto «ایران» with a bounce, then bobs gently over a faint pulse.
-  With prefers-reduced-motion everything simply appears in place.
+  «ایران؛» pops in → the pin drops onto it → the loop is drawn from the pin's tip (0.8 s) →
+  «دورت», «بگردم» rise in below. With prefers-reduced-motion everything simply appears, loop already drawn.
 */
 
-import { useEffect, useId, useRef } from "react";
 import { cn } from "@/lib/utils";
 
-/* The orbit around «ایران»: "دورت بگردم" = "let me circle around you". A tilted ring whose far half runs
-   behind the word and near half in front, with a small red traveller going round it every 9 s. */
-// ellipse in a 400×140 box, tilted -8° around its centre
-const CX = 200;
-const CY = 70;
-const RX = 188;
-const RY = 38;
-const FULL = `M ${CX - RX} ${CY} A ${RX} ${RY} 0 1 1 ${CX + RX} ${CY} A ${RX} ${RY} 0 1 1 ${CX - RX} ${CY}`;
-const FAR = `M ${CX - RX} ${CY} A ${RX} ${RY} 0 0 1 ${CX + RX} ${CY}`; // upper half: behind the word
-const NEAR = `M ${CX + RX} ${CY} A ${RX} ${RY} 0 0 1 ${CX - RX} ${CY}`; // lower half: in front of it
-const TILT = `rotate(-8 ${CX} ${CY})`;
-const LAP = "9s";
+/** Hand-drawn loop in a 200×120 box: starts at the pin (top right) and goes round clockwise on screen. */
+const LOOP = "M 176 20 C 206 46 198 102 110 110 C 30 117 -4 84 10 50 C 24 16 88 4 148 10 C 166 12 178 18 184 26";
 
-function Ring({ layer, play, id }: { layer: "far" | "near"; play: boolean; id: string }) {
-  const ref = useRef<SVGSVGElement>(null);
-
-  // SMIL animations run on the SVG's own clock: hold it at zero until the logotype plays
-  useEffect(() => {
-    const svg = ref.current;
-    if (!svg) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!play || reduce) {
-      svg.pauseAnimations();
-      svg.setCurrentTime(reduce ? 2.6 : 0); // reduced motion: traveller parked on the near side
-    } else {
-      svg.setCurrentTime(0);
-      svg.unpauseAnimations();
-    }
-  }, [play]);
-
-  const near = layer === "near";
+function Loop({ play }: { play: boolean }) {
   return (
     <svg
-      ref={ref}
-      viewBox="0 0 400 140"
+      viewBox="0 0 200 120"
+      preserveAspectRatio="none"
       aria-hidden
-      className={cn(
-        "pointer-events-none absolute top-1/2 left-1/2 w-[160%] -translate-x-1/2 -translate-y-[44%] overflow-visible",
-        near ? "z-20" : "z-0",
-      )}
+      className="pointer-events-none absolute -inset-x-[0.38em] -top-[0.12em] -bottom-[0.02em] z-20 h-[calc(100%+0.14em)] w-[calc(100%+0.76em)] overflow-visible"
     >
-      <defs>
-        {/* the near layer only paints the lower half of the orbit, in front of the letters */}
-        <clipPath id={`near-${id}`}>
-          <rect x="-20" y={CY} width="440" height="100" transform={TILT} />
-        </clipPath>
-      </defs>
-      <g transform={TILT}>
-        <path
-          d={near ? NEAR : FAR}
-          fill="none"
-          stroke="var(--saffron)"
-          strokeWidth={near ? 5.5 : 4.5}
-          strokeLinecap="round"
-          strokeDasharray="16 12"
-          opacity={near ? 1 : 0.6}
-          pathLength={600}
-          style={{ ["--route-len" as string]: 600 }}
-          className={cn(
-            "[stroke-dashoffset:600]",
-            play && "motion-safe:animate-[route-draw_1.1s_0.4s_cubic-bezier(.6,0,.2,1)_forwards] motion-reduce:[stroke-dashoffset:0]",
-          )}
-        />
-        <g clipPath={near ? `url(#near-${id})` : undefined}>
-          <circle r={near ? 10 : 8} fill="var(--anar)" stroke="var(--paper)" strokeWidth="3" opacity={near ? 1 : 0.7}>
-            <animate attributeName="opacity" from="0" to={near ? 1 : 0.7} begin="1.4s" dur="0.3s" fill="freeze" />
-            <animateMotion path={FULL} begin="1.4s" dur={LAP} repeatCount="indefinite" rotate="auto" />
-          </circle>
-        </g>
-      </g>
+      <path
+        d={LOOP}
+        fill="none"
+        stroke="var(--saffron)"
+        strokeWidth="5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+        pathLength={1000}
+        style={{ ["--route-len" as string]: 1000, strokeDasharray: 1000 }}
+        className={cn(
+          "[stroke-dashoffset:1000] [stroke-width:clamp(4px,0.09em,7px)]",
+          play && "motion-safe:animate-[route-draw_.8s_.95s_cubic-bezier(.55,.05,.35,1)_forwards] motion-reduce:[stroke-dashoffset:0]",
+        )}
+      />
     </svg>
   );
 }
 
-
 function MapPin({ play }: { play: boolean }) {
   return (
-    <span
-      aria-hidden
-      className="pointer-events-none absolute -top-[0.5em] -right-[0.36em] z-30 block w-[0.38em]"
-    >
-      {/* a faint pulse where the pin touches down */}
-      <span
-        className={cn(
-          "absolute top-[118%] left-1/2 block h-[0.12em] w-[0.42em] -translate-x-1/2 rounded-[50%] border-2 border-anar opacity-0",
-          play && "motion-safe:animate-[pin-pulse_2.4s_2.1s_ease-out_infinite]",
-        )}
-      />
-      {/* the pin: drop + bounce, then a slow bob */}
+    <span aria-hidden className="pointer-events-none absolute -top-[0.44em] -right-[0.42em] z-30 block w-[0.34em]">
       <span
         className={cn(
           "block origin-bottom opacity-0",
-          play &&
-            "motion-safe:animate-[pin-drop_.9s_1s_cubic-bezier(.3,1.4,.5,1)_forwards,pin-bob_2.4s_2.1s_ease-in-out_infinite] motion-reduce:opacity-100",
+          play && "motion-safe:animate-[pin-drop_.8s_.3s_cubic-bezier(.3,1.4,.5,1)_forwards] motion-reduce:opacity-100",
         )}
       >
         <svg viewBox="0 0 40 52" className="block w-full overflow-visible drop-shadow-[0_3px_3px_rgb(23_32_61/0.25)]">
@@ -125,7 +69,6 @@ function MapPin({ play }: { play: boolean }) {
 }
 
 export function HeroLogotype({ play = true, className }: { play?: boolean; className?: string }) {
-  const id = useId().replace(/:/g, "");
   // class names spelled out in full so Tailwind can see them
   const rise1 = cn("inline-block opacity-0", play && "motion-safe:animate-[word-drop_.6s_.45s_cubic-bezier(.2,.9,.3,1.2)_forwards] motion-reduce:opacity-100");
   const rise2 = cn("inline-block opacity-0", play && "motion-safe:animate-[word-drop_.6s_.57s_cubic-bezier(.2,.9,.3,1.2)_forwards] motion-reduce:opacity-100");
@@ -135,9 +78,8 @@ export function HeroLogotype({ play = true, className }: { play?: boolean; class
       className={cn("app-fg flex flex-col items-center text-center font-sans leading-[1.05]", className)}
       aria-label="ایران؛ دورت بگردم"
     >
-      {/* line 1: «ایران؛», circled by its orbit, with the pin on its first letter */}
-      <span aria-hidden className="relative inline-block px-[0.15em] text-[clamp(3.2rem,7vw,6.2rem)] font-black tracking-tight">
-        <Ring layer="far" play={play} id={id} />
+      {/* line 1: «ایران؛» with the pin on it and the loop drawn round it */}
+      <span aria-hidden className="relative inline-block px-[0.12em] text-[clamp(3.2rem,7vw,6.2rem)] font-black tracking-tight">
         <span
           className={cn(
             "relative z-10 inline-block opacity-0",
@@ -146,7 +88,7 @@ export function HeroLogotype({ play = true, className }: { play?: boolean; class
         >
           ایران؛
         </span>
-        <Ring layer="near" play={play} id={id} />
+        <Loop play={play} />
         <MapPin play={play} />
       </span>
       {/* line 2: «دورت بگردم» */}

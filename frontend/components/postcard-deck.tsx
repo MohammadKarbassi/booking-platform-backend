@@ -362,7 +362,7 @@ export function PostcardDeck({
       style={{ perspective: "1600px" }}
     >
       {/* title over the deck, like the reference page's centred logotype */}
-      <div className="pointer-events-none absolute inset-x-0 top-[6.5%] z-[400] flex justify-center">{title(loaderGone)}</div>
+      <div className="pointer-events-none absolute inset-x-0 top-[9%] z-[400] flex justify-center">{title(loaderGone)}</div>
 
       <div className="absolute inset-x-0 top-[53%] h-0 md:top-[63%] [transform-style:preserve-3d]">
         {items.map((s, i) => {
