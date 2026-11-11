@@ -229,6 +229,55 @@
     transform: scale(1);
   }
 }
+/* logotype map pin: lands with a bounce, then bobs over a soft pulse */
+@keyframes pin-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-160%) scaleY(1.1);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0) scale(1.12, 0.86);
+  }
+  75% {
+    transform: translateY(-14%) scale(0.96, 1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pin-bob {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-10%);
+  }
+}
+@keyframes pin-shadow {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.2);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+@keyframes pin-pulse {
+  0% {
+    opacity: 0.8;
+    transform: translateX(-50%) scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) scale(2.4);
+  }
+}
 @keyframes radar-sweep {
   to {
     transform: rotate(360deg);

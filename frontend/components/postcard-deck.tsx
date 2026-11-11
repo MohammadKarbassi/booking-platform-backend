@@ -207,7 +207,7 @@ export function PostcardDeck({
     const resize = () => {
       const mobile = window.innerWidth < 768;
       // tall enough to dominate, but never wider than ~78% of a phone and clear of the title and the journal bar
-      const h = Math.round(Math.min(el.clientHeight * (mobile ? 0.52 : 0.72), 640, (el.clientWidth * 0.78) / CARD_RATIO));
+      const h = Math.round(Math.min(el.clientHeight * (mobile ? 0.52 : 0.62), 600, (el.clientWidth * 0.78) / CARD_RATIO));
       const w = Math.round(h * CARD_RATIO);
       const gap = mobile ? 40 : 80;
       el.style.setProperty("--card-w", `${w}px`);
@@ -362,9 +362,9 @@ export function PostcardDeck({
       style={{ perspective: "1600px" }}
     >
       {/* title over the deck, like the reference page's centred logotype */}
-      <div className="pointer-events-none absolute inset-x-0 top-[3.5%] z-[400] flex justify-center">{title(loaderGone)}</div>
+      <div className="pointer-events-none absolute inset-x-0 top-[6.5%] z-[400] flex justify-center">{title(loaderGone)}</div>
 
-      <div className="absolute inset-x-0 top-[53%] h-0 md:top-[58%] [transform-style:preserve-3d]">
+      <div className="absolute inset-x-0 top-[53%] h-0 md:top-[63%] [transform-style:preserve-3d]">
         {items.map((s, i) => {
           const [l1, l2] = splitTitle(s.title);
           return (
@@ -447,7 +447,7 @@ export function PostcardDeck({
       </div>
 
       {/* previous / next, for mouse users now that the wheel scrolls the page */}
-      <div className="absolute inset-x-0 top-[53%] z-[420] md:top-[58%] flex -translate-y-1/2 justify-between px-3 sm:px-6" data-sfx="off">
+      <div className="absolute inset-x-0 top-[53%] z-[420] md:top-[63%] flex -translate-y-1/2 justify-between px-3 sm:px-6" data-sfx="off">
         <button
           type="button"
           onClick={() => go(-1)}
