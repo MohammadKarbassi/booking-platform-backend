@@ -8,11 +8,11 @@
 - kandovan2: "Kandovan (11)", Ata Dadashi, CC BY 4.0
 - yazd: "Iran Yazd", ali reza, CC BY 2.0; yazd2: Adam Jones, CC BY-SA 2.0
 - kashan, kashan2: "Tabatabaei House, Kashan", Bernard Gagnon, CC BY-SA 4.0
-- qeshm, qeshm2: "Stars Valley (Qeshm)", Petr Adam Dohnálek, CC BY-SA 3.0 CZ
-- isfahan: Amir Pashaei, CC BY-SA 4.0; isfahan2: Arad, CC BY-SA 3.0
+- qeshm: "Seagulls in Qeshm", Rayeshman, CC BY-SA 4.0; qeshm2: "Stars Valley (Qeshm)", Petr Adam Dohnálek, CC BY-SA 3.0 CZ
+- isfahan: "Carriage passing in front of Sheikh Lotfollah Mosque", Seyed Mostafa Razavi, CC BY-SA 4.0; isfahan2: "Naqsh-e Jahan Square from the gheisariye Vault", Amir Pashaei, CC BY-SA 4.0
 - shiraz: "Eram Garden Shiraz", Mostafameraji, CC BY-SA 4.0
 - filband: "Filband Mazandaran", Mostafameraji, CC0
-- abyaneh: "Abyaneh", Diego Delso, CC BY-SA 4.0
+- abyaneh: "Barz-Rud Valley from Abyaneh", Orijentolog, CC BY-SA 3.0; abyaneh2: "Abyaneh", Diego Delso, CC BY-SA 4.0
 - tochal: "Tochal, Tehran", Httitude, CC BY-SA 3.0
 - bisheh: "Bisheh waterfall side", Apiculate, CC BY-SA 4.0
 - bisheh2: "Bisheh waterfall 4", Morgan karim, CC BY-SA 3.0

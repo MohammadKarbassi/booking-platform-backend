@@ -13,56 +13,66 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
+/**
+ * One recording per postcard, none repeated. Themes follow the reference site's card sounds
+ * (rain in the city, a forest walk, a harbour, southern cicadas, a family carriage ride, culture…),
+ * transposed to Iran; each photo was chosen to show its sound.
+ */
 export const SOUNDS = {
-  waterfall: "/sounds/waterfall.mp3",
-  sea: "/sounds/sea.mp3",
-  lagoon: "/sounds/lagoon.mp3",
-  rain: "/sounds/rain.mp3",
-  forestbirds: "/sounds/forestbirds.mp3",
-  birds: "/sounds/birds.mp3",
-  brook: "/sounds/brook.mp3",
-  fountain: "/sounds/fountain.mp3",
-  desert: "/sounds/desert.mp3",
-  pines: "/sounds/pines.mp3",
+  waterfall: "/sounds/waterfall.mp3", // Bisheh Waterfall
+  santur: "/sounds/santur.mp3", // a santur in Kashan's Tabatabaei House
+  sea: "/sounds/sea.mp3", // Caspian waves at Ramsar
+  carriage: "/sounds/carriage.mp3", // horse carriage in Naqsh-e Jahan Square
+  gulls: "/sounds/gulls.mp3", // seagulls at Qeshm
+  lagoon: "/sounds/lagoon.mp3", // frogs and water birds, Anzali Lagoon
+  rain: "/sounds/rain.mp3", // rain over Masuleh
+  cicadas: "/sounds/cicadas.mp3", // summer in Eram Garden, Shiraz
+  rooster: "/sounds/rooster.mp3", // a rooster and chicks in Kandovan
+  forestbirds: "/sounds/forestbirds.mp3", // Kelardasht forest
+  brook: "/sounds/brook.mp3", // the stream below Abyaneh
+  desert: "/sounds/desert.mp3", // desert wind over Yazd
+  snow: "/sounds/snow.mp3", // wind and snow on Tochal
+  pines: "/sounds/pines.mp3", // wind in the pines above Filband's clouds
 } as const;
 export type Scape = keyof typeof SOUNDS;
 
-/** Each postcard sounds like what its photo shows (keyed by the stay's slug). */
 const STAY_SCAPE: Record<string, Scape> = {
   "bisheh-waterfall-cabin": "waterfall",
+  "kashan-mansion": "santur",
   "ramsar-beach-villa": "sea",
+  "isfahan-naqsh-apartment": "carriage",
+  "qeshm-beach-hut": "gulls",
   "anzali-lagoon-house": "lagoon",
   "masuleh-suite": "rain",
+  "shiraz-garden-suite": "cicadas",
+  "kandovan-rock-house": "rooster",
   "kelardasht-forest-cabin": "forestbirds",
-  "shiraz-garden-suite": "birds",
   "abyaneh-red-lodge": "brook",
-  "kashan-mansion": "fountain",
-  "isfahan-naqsh-apartment": "fountain",
   "yazd-windcatcher-house": "desert",
-  "qeshm-beach-hut": "desert",
+  "tehran-tochal-flat": "snow",
   "filband-cloud-cabin": "pines",
-  "kandovan-rock-house": "pines",
-  "tehran-tochal-flat": "pines",
 };
 /** For stays added later from the admin panel. */
 const CITY_SCAPE: Record<string, Scape> = {
-  رامسر: "sea",
-  قشم: "sea",
-  "بندر انزلی": "lagoon",
   بیشه: "waterfall",
+  کاشان: "santur",
+  رامسر: "sea",
+  اصفهان: "carriage",
+  قشم: "gulls",
+  "بندر انزلی": "lagoon",
   ماسوله: "rain",
+  شیراز: "cicadas",
+  کندوان: "rooster",
   کلاردشت: "forestbirds",
-  فیلبند: "pines",
-  کندوان: "pines",
-  تهران: "pines",
   ابیانه: "brook",
   یزد: "desert",
-  شیراز: "birds",
+  تهران: "snow",
+  فیلبند: "pines",
 };
-export const scapeFor = (slug: string, city: string): Scape => STAY_SCAPE[slug] ?? CITY_SCAPE[city] ?? "fountain";
+export const scapeFor = (slug: string, city: string): Scape => STAY_SCAPE[slug] ?? CITY_SCAPE[city] ?? "sea";
 
-/** The deck opens with the best-sounding places first. */
-const SOUND_ORDER: Scape[] = ["waterfall", "sea", "lagoon", "rain", "forestbirds", "birds", "brook", "fountain", "desert", "pines"];
+/** The deck opens with the most striking sounds first; the order of SOUNDS is that ranking. */
+const SOUND_ORDER = Object.keys(SOUNDS) as Scape[];
 export const soundRank = (slug: string, city: string) => SOUND_ORDER.indexOf(scapeFor(slug, city));
 
 export type Sfx = "hover" | "click" | "menuIn" | "menuOut" | "sliderIn";

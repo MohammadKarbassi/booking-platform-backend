@@ -88,7 +88,7 @@ def run(reset: bool = False):
         others = [
             acc(host=host3, type=eco, city=city["کندوان"], title="خانهٔ صخره‌ای کندوان", slug="kandovan-rock-house",
                 description="شب را درون یک کَران آتشفشانی بگذران؛ خانه‌ای که هفتصد سال پیش در دل سنگ کنده شده و "
-                            "تابستان خنک و زمستان گرم است.",
+                            "تابستان خنک و زمستان گرم است. صبح با آواز خروس همسایه بیدار می‌شوی.",
                 address="کندوان، محلهٔ بالا", latitude=37.7945, longitude=46.2489, base_capacity=2,
                 max_capacity=4, bedrooms=1, beds=2, bathrooms=1, area_m2=45, base_price_per_night=12_000_000,
                 extra_guest_price=1_000_000, house_rules="کفش‌ها را دم در بیرون بیاورید",
@@ -102,28 +102,28 @@ def run(reset: bool = False):
                 amenities=[am["wifi"], am["ac"], am["breakfast"], am["yard"]], images=imgs("yazd", "yazd2")),
             acc(host=host3, type=eco, city=city["کاشان"], title="عمارت شاه‌نشین کاشان", slug="kashan-mansion",
                 description="اتاق‌های گوشواره‌ای یک عمارت قاجاری با ارسی‌های رنگی. نور صبح از شیشه‌ها روی فرش "
-                            "می‌ریزد.",
+                            "می‌ریزد. شب‌ها نوای سنتور از حیاط می‌آید.",
                 address="کاشان، محلهٔ سلطان امیر احمد", latitude=33.9789, longitude=51.4440, base_capacity=2,
                 max_capacity=4, bedrooms=2, beds=2, bathrooms=1, area_m2=90, base_price_per_night=14_000_000,
                 extra_guest_price=1_000_000,
-                amenities=[am["wifi"], am["ac"], am["breakfast"], am["yard"]], images=imgs("kashan", "kashan2")),
+                amenities=[am["wifi"], am["ac"], am["breakfast"], am["yard"]], images=imgs("kashan2", "kashan")),
             acc(host=host4, type=eco, city=city["قشم"], title="کپر ساحلی قشم", slug="qeshm-beach-hut",
                 description="کپر بومی کنار دریای خلیج فارس، چند دقیقه تا درهٔ ستاره‌ها. شام ماهی محلی با دست "
-                            "میزبان پخته می‌شود.",
+                            "میزبان پخته می‌شود و صبح‌ها مرغ‌های دریایی لب ساحل جمع می‌شوند.",
                 address="قشم، روستای برکه خلف", latitude=26.8600, longitude=55.8600, base_capacity=2,
                 max_capacity=5, bedrooms=1, beds=3, bathrooms=1, area_m2=50, base_price_per_night=8_000_000,
                 extra_guest_price=800_000, amenities=[am["ac"], am["breakfast"], am["parking"]],
                 images=imgs("qeshm", "qeshm2")),
             acc(host=host1, type=apt, city=city["اصفهان"], title="آپارتمان نقش جهان", slug="isfahan-naqsh-apartment",
                 description="آپارتمانی دنج سه کوچه آن‌طرف‌تر از میدان نقش جهان. عصر پیاده تا سی‌وسه‌پل برو و شب "
-                            "برگرد.",
+                            "برگرد؛ یا سوار درشکه دور میدان بچرخ.",
                 address="اصفهان، خیابان حافظ", latitude=32.6610, longitude=51.6740, base_capacity=3,
                 max_capacity=5, bedrooms=2, beds=3, bathrooms=1, area_m2=95, base_price_per_night=20_000_000,
                 extra_guest_price=1_500_000, amenities=[am["wifi"], am["ac"], am["kitchen"], am["parking"]],
                 images=imgs("isfahan", "isfahan2")),
             acc(host=host4, type=suite, city=city["شیراز"], title="باغ‌سرای شیراز", slug="shiraz-garden-suite",
                 description="سوئیتی در باغی پر از نارنج، نزدیک باغ ارم. بهار که بیایی، بوی بهارنارنج تا "
-                            "اتاق می‌آید.",
+                            "اتاق می‌آید و عصرهای تابستان، آواز زنجره‌ها.",
                 address="شیراز، خیابان ارم", latitude=29.6380, longitude=52.5200, base_capacity=2,
                 max_capacity=3, bedrooms=1, beds=1, bathrooms=1, area_m2=55, base_price_per_night=15_000_000,
                 extra_guest_price=1_000_000, amenities=[am["wifi"], am["ac"], am["yard"], am["breakfast"]],
@@ -136,12 +136,12 @@ def run(reset: bool = False):
                 extra_guest_price=1_000_000, min_nights=2,
                 amenities=[am["heating"], am["fireplace"], am["parking"]], images=imgs("filband")),
             acc(host=host2, type=eco, city=city["ابیانه"], title="اقامتگاه سرخ ابیانه", slug="abyaneh-red-lodge",
-                description="خانه‌ای با دیوارهای گلی سرخ در روستای هزارساله. اهالی هنوز به گویش پارتی حرف "
-                            "می‌زنند.",
+                description="خانه‌ای با دیوارهای گلی سرخ در روستای هزارساله، بالای درهٔ سبز برزرود که رودخانه در آن "
+                            "جاری است. اهالی هنوز به گویش پارتی حرف می‌زنند.",
                 address="ابیانه، محلهٔ یالان", latitude=33.5770, longitude=51.6030, base_capacity=2,
                 max_capacity=4, bedrooms=2, beds=2, bathrooms=1, area_m2=70, base_price_per_night=11_000_000,
                 extra_guest_price=900_000, amenities=[am["heating"], am["breakfast"], am["yard"]],
-                images=imgs("abyaneh")),
+                images=imgs("abyaneh", "abyaneh2")),
             acc(host=host4, type=apt, city=city["تهران"], title="آپارتمان دامنهٔ توچال", slug="tehran-tochal-flat",
                 description="طبقهٔ آخر با پنجره‌ای رو به توچال. صبح تله‌کابین، عصر دربند و شب چراغ‌های شهر.",
                 address="تهران، ولنجک", latitude=35.8000, longitude=51.4000, base_capacity=2,
