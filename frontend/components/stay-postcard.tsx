@@ -5,6 +5,7 @@ import { MapPin, Star } from "lucide-react";
 import { distanceLabel } from "@/components/discovery-radar";
 import { FavoriteButton } from "@/components/favorite-button";
 import { Postmark } from "@/components/postmark";
+import { destinationPhotoLabel } from "@/lib/destination-photos";
 import { fa, tomanShort } from "@/lib/format";
 import { scapeFor, useSound } from "@/lib/sound";
 import type { StayCard } from "@/lib/types";
@@ -15,6 +16,7 @@ const TILTS = ["-rotate-[1.6deg]", "rotate-[1.2deg]", "-rotate-[0.6deg]", "rotat
 export function StayPostcard({ stay, index = 0, query = "" }: { stay: StayCard; index?: number; query?: string }) {
   const sound = useSound();
   const scape = scapeFor(stay.slug, stay.city);
+  const destination = destinationPhotoLabel(stay.cover_image);
 
   return (
     <article
@@ -33,7 +35,7 @@ export function StayPostcard({ stay, index = 0, query = "" }: { stay: StayCard; 
             // eslint-disable-next-line @next/next/no-img-element -- any URL an admin pastes, no fixed host list
             <img
               src={stay.cover_image}
-              alt={`نمای ${stay.title}`}
+              alt={destination ?? `نمای ${stay.title}`}
               loading="lazy"
               className="size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
             />
@@ -51,6 +53,12 @@ export function StayPostcard({ stay, index = 0, query = "" }: { stay: StayCard; 
             </div>
           </div>
           <Postmark city={stay.city} className="absolute top-6 left-10 w-28 opacity-90 mix-blend-multiply" color="#fff" />
+
+          {destination && (
+            <span className="absolute inset-x-2 bottom-2 w-fit rounded bg-ink px-2 py-1 text-xs text-white">
+              عکس مقصد · {destination}
+            </span>
+          )}
 
           <FavoriteButton stayId={stay.id} className="absolute top-2.5 right-2.5" />
 

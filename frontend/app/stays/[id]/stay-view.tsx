@@ -37,6 +37,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { StayMap } from "@/components/maps";
 import { Postmark } from "@/components/postmark";
 import { BookingCard } from "./booking-card";
+import { destinationPhotoLabel } from "@/lib/destination-photos";
 import { clock, fa, isoDate, jDate, parseDate, today, tomanShort } from "@/lib/format";
 import { amenityIcon } from "@/lib/icons";
 import { useCalendar, useNearby, useReviews, useStay } from "@/lib/queries";
@@ -53,28 +54,48 @@ function Stars({ value, size = "size-4" }: { value: number; size?: string }) {
 }
 
 function Gallery({ stay }: { stay: StayDetail }) {
+  const images = stay.images.map((image) => ({ ...image, destination: destinationPhotoLabel(image.url) }));
+  const propertyPhotos = images.filter((image) => !image.destination);
+  const destinationPhotos = images.filter((image) => image.destination);
+  const gallery = [
+    ...propertyPhotos.sort((a, b) => Number(b.is_cover) - Number(a.is_cover)),
+    ...destinationPhotos,
+  ];
+
   return (
     <div className="relative -rotate-[0.6deg] rounded-[6px] bg-white p-3 pb-4 shadow-[0_24px_44px_-20px_rgb(23_32_61/0.55)] ring-1 ring-ink/10">
-      <Carousel opts={{ direction: "rtl", loop: true }} dir="rtl">
-        <CarouselContent>
-          {stay.images.map((img, i) => (
-            <CarouselItem key={img.url}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={img.url}
-                alt={`${stay.title}، عکس ${fa(i + 1)}`}
-                className="aspect-[16/10] w-full rounded-[3px] object-cover"
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        {stay.images.length > 1 && (
-          <>
-            <CarouselPrevious className="right-3 left-auto border-ink bg-white/90" />
-            <CarouselNext className="right-auto left-3 border-ink bg-white/90" />
-          </>
-        )}
-      </Carousel>
+      {gallery.length > 0 && (
+        <Carousel opts={{ direction: "rtl", loop: true }} dir="rtl" aria-label="گالری اقامتگاه و مقصد">
+          <CarouselContent>
+            {gallery.map((img, i) => (
+              <CarouselItem key={img.url}>
+                <figure className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img.url}
+                    alt={img.destination ?? `${stay.title}، عکس ${fa(i + 1)}`}
+                    className="aspect-[16/10] w-full rounded-[3px] object-cover"
+                  />
+                  {img.destination && (
+                    <figcaption className="absolute start-2 bottom-2 rounded bg-ink px-2 py-1 text-xs text-white">
+                      عکس مقصد · {img.destination}
+                    </figcaption>
+                  )}
+                </figure>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          {gallery.length > 1 && (
+            <>
+              <CarouselPrevious className="right-3 left-auto border-ink bg-white/90" />
+              <CarouselNext className="right-auto left-3 border-ink bg-white/90" />
+            </>
+          )}
+        </Carousel>
+      )}
+      {propertyPhotos.length === 0 && (
+        <p className="px-2 pt-3 text-sm text-muted-foreground">هنوز عکسی از خود اقامتگاه ثبت نشده است.</p>
+      )}
       <Postmark city={stay.city} className="absolute -bottom-6 left-6 w-40" />
     </div>
   );
@@ -109,7 +130,7 @@ function AvailabilityCalendar({ stayId }: { stayId: number }) {
         }}
       />
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        عدد زیر هر روز، قیمت آن شب به میلیون تومان است، روزهای خط‌خورده پر هستند
+        عدد زیر هر روز، نرخ پایه یا نرخ تعیین‌شده برای آن روز است. مبلغ نهایی بعد از انتخاب تاریخ و تعداد مسافر مشخص می‌شود. روزهای خط‌خورده در دسترس نیستند.
       </p>
     </div>
   );
@@ -312,7 +333,7 @@ export function StayView({ id }: { id: number }) {
           </section>
 
           <section className="mt-14" aria-labelledby="calendar">
-            <h2 id="calendar" className="text-display text-3xl text-ink">تقویم و قیمت سه ماه آینده</h2>
+            <h2 id="calendar" className="text-display text-3xl text-ink">تقویم و نرخ‌های سه ماه آینده</h2>
             <div className="journal mt-4 p-4">
               <AvailabilityCalendar stayId={s.id} />
             </div>
@@ -361,20 +382,6 @@ export function StayView({ id }: { id: number }) {
             }}
           />
         </aside>
-      </div>
-
-      {/* phones: the booking card sits at the end of a long page, so keep a way to it on screen */}
-      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-3 border-t-2 border-ink bg-paper/95 px-4 py-3 backdrop-blur lg:hidden">
-        <p>
-          <span className="text-display text-2xl">{tomanShort(s.base_price_per_night)}</span>
-          <span className="text-sm text-muted-foreground"> تومان / شب</span>
-        </p>
-        <Button
-          className="rounded-xl border-2 border-ink bg-lapis font-bold shadow-[var(--shadow-journal-sm)]"
-          onClick={() => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-        >
-          انتخاب تاریخ و رزرو
-        </Button>
       </div>
     </div>
   );

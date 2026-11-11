@@ -9,45 +9,12 @@ import { StayPostcard, StayPostcardSkeleton } from "@/components/stay-postcard";
 import { DiscoveryRadar, PoiList } from "@/components/discovery-radar";
 import { StaysMap } from "@/components/maps";
 import { PostcardDeck } from "@/components/postcard-deck";
+import { HeroLogotype } from "@/components/hero-logotype";
 import { JournalBar } from "@/components/journal-bar";
 import { LandmarkFinder } from "@/components/landmark-finder";
 import { WaitlistShowcase } from "@/components/waitlist-showcase";
 import { fa } from "@/lib/format";
 import { useCities, useNearby, useProvinces, useSearch } from "@/lib/queries";
-
-/** The site's logotype over the deck: «دورت بگردم؛» / «ایران.», with the saffron route circling «دورت». */
-function HeroTitle() {
-  return (
-    <h1 className="app-fg text-display text-center text-[clamp(2.2rem,4.6vw,3.6rem)] leading-[0.95]">
-      <span className="block">
-        <span className="relative inline-block px-[0.1em]">
-          <svg
-            aria-hidden
-            viewBox="0 0 200 120"
-            preserveAspectRatio="none"
-            className="absolute -inset-x-[0.3em] -inset-y-[0.2em] h-[calc(100%+0.4em)] w-[calc(100%+0.6em)] overflow-visible"
-          >
-            <path
-              d="M 172 22 C 205 48 196 100 112 110 C 30 118 -6 82 12 46 C 28 14 92 4 150 14 C 168 17 180 24 186 30"
-              fill="none"
-              stroke="var(--saffron)"
-              strokeWidth="7"
-              strokeLinecap="round"
-              strokeDasharray="14 11"
-              pathLength={1200}
-              style={{ ["--route-len" as string]: 1200, strokeDashoffset: 0 }}
-              className="motion-safe:animate-[route-draw_1.6s_2.2s_cubic-bezier(.6,0,.2,1)_both]"
-            />
-            <circle cx="186" cy="30" r="7" fill="var(--anar)" stroke="var(--ink)" strokeWidth="2.5" />
-          </svg>
-          <span className="relative">دورت</span>
-        </span>{" "}
-        بگردم؛
-      </span>
-      <span className="block font-sans text-[0.78em] font-light tracking-tight">ایران.</span>
-    </h1>
-  );
-}
 
 export default function Home() {
   const all = useSearch({ size: 24, sort: "newest" });
@@ -61,30 +28,30 @@ export default function Home() {
   return (
     <>
       {/* hero: the postcard deck (see components/postcard-deck.tsx) */}
-      <section className="relative h-[calc(92svh-4rem)] min-h-[580px] border-b-2 border-ink" aria-label="کارت‌پستال‌های دور ایران">
+      <section className="relative h-[clamp(360px,55svh,490px)] border-b-2 border-ink md:h-[calc(92svh-4rem)] md:min-h-[580px]" aria-label="کارت‌پستال‌های دور ایران">
         {all.isError ? (
           <div className="grid h-full place-items-center px-4 text-center">
             <div>
-              <HeroTitle />
+              <HeroLogotype />
               <p className="mt-6 text-muted-foreground">کارت‌پستال‌ها نیامدند: {(all.error as Error).message}</p>
               <Button className="mt-4 bg-lapis" onClick={() => all.refetch()}>دوباره امتحان کن</Button>
             </div>
           </div>
         ) : (
-          <PostcardDeck stays={stays} title={<HeroTitle />} />
+          <PostcardDeck stays={stays} title={(play) => <HeroLogotype play={play} />} />
         )}
         <JournalBar />
       </section>
 
       {/* a plain search for whoever skips the deck */}
-      <section className="mx-auto max-w-5xl px-4 pt-14">
+      <section className="mx-auto max-w-5xl px-4 pt-5 md:pt-14">
         <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
           <Compass className="size-4 text-lapis" />
           {all.data
             ? `${fa(all.data.total)} اقامتگاه در ${fa(cities.data?.length ?? 0)} شهر و ${fa(provinces.data?.length ?? 0)} استان`
             : "در حال باز کردن نقشه…"}
         </p>
-        <SearchBar />
+        <SearchBar className="max-sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] max-sm:[&>button:first-child]:col-span-full max-sm:[&>button:last-child]:col-span-full" />
       </section>
 
       {/* distinctive feature 1: start from a landmark */}

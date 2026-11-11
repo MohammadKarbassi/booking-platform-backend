@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { Hourglass, Info, ShieldCheck } from "lucide-react";
@@ -35,6 +35,9 @@ export function BookingCard({ stay, initial }: { stay: StayDetail; initial: Date
   const [dates, setDates] = useState<Dates>({ check_in: initial.check_in, check_out: initial.check_out });
   const [guests, setGuests] = useState(Math.min(initial.guests ?? 2, stay.max_capacity));
   const [waitOffer, setWaitOffer] = useState(false);
+  const [datesOpen, setDatesOpen] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const waitButtonRef = useRef<HTMLButtonElement>(null);
 
   const cal = useCalendar(stay.id, isoDate(today()), 90);
   const booked = useMemo(() => (cal.data ?? []).filter((d) => !d.available).map((d) => parseDate(d.date)), [cal.data]);
@@ -84,9 +87,21 @@ export function BookingCard({ stay, initial }: { stay: StayDetail; initial: Date
   });
 
   const ready = Boolean(dates.check_in && dates.check_out);
+  const quoted = ready && !quote.isError ? quote.data : undefined;
+  const submitting = book.isPending || wait.isPending;
+
+  function openDates() {
+    cardRef.current?.scrollIntoView({ block: "center", behavior: "instant" });
+    setDatesOpen(true);
+  }
+
+  function bookOrSignIn() {
+    if (user) book.mutate();
+    else requireLogin();
+  }
 
   return (
-    <div className="journal p-5">
+    <div ref={cardRef} className="journal p-5">
       <div className="flex items-baseline justify-between">
         <p>
           <span className="text-display text-3xl text-ink">{tomanShort(stay.base_price_per_night)}</span>
@@ -96,7 +111,15 @@ export function BookingCard({ stay, initial }: { stay: StayDetail; initial: Date
       </div>
 
       <div className="mt-4 grid grid-cols-1 overflow-hidden rounded-xl border-[1.5px] border-ink/70 bg-card">
-        <DatesPicker value={dates} onChange={setDates} booked={booked} minNights={stay.min_nights} className="rounded-none" />
+        <DatesPicker
+          value={dates}
+          onChange={setDates}
+          open={datesOpen}
+          onOpenChange={setDatesOpen}
+          booked={booked}
+          minNights={stay.min_nights}
+          className="rounded-none"
+        />
         <div className="border-t border-dashed border-ink/30" />
         <GuestsPicker value={guests} onChange={setGuests} max={stay.max_capacity} className="rounded-none" />
       </div>
@@ -167,7 +190,8 @@ export function BookingCard({ stay, initial }: { stay: StayDetail; initial: Date
           <Button
             size="lg"
             className="mt-3 h-12 w-full bg-anar text-base font-bold hover:bg-anar/90"
-            disabled={!quote.data || wait.isPending}
+            ref={waitButtonRef}
+            disabled={!quoted || submitting}
             onClick={() => (user ? wait.mutate() : requireLogin())}
           >
             {wait.isPending && <Spinner />}
@@ -178,15 +202,8 @@ export function BookingCard({ stay, initial }: { stay: StayDetail; initial: Date
         <Button
           size="lg"
           className="journal-press mt-5 h-12 w-full rounded-xl border-2 border-ink bg-lapis text-base font-bold shadow-[var(--shadow-journal-sm)]"
-          disabled={(ready && !quote.data) || book.isPending}
-          onClick={() => {
-            if (!ready) {
-              toast.info("اول تاریخ ورود و خروج را انتخاب کن.");
-              return;
-            }
-            if (user) book.mutate();
-            else requireLogin();
-          }}
+          disabled={(ready && !quoted) || submitting}
+          onClick={ready ? bookOrSignIn : openDates}
         >
           {book.isPending && <Spinner />}
           {ready ? "رزرو و رفتن به پرداخت" : "تاریخ سفر را انتخاب کن"}
@@ -196,6 +213,24 @@ export function BookingCard({ stay, initial }: { stay: StayDetail; initial: Date
         <ShieldCheck className="size-3.5 text-firoozeh" />
         شب‌ها تا ۱۵ دقیقه برایت نگه داشته می‌شوند
       </p>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-3 border-t-2 border-ink bg-paper px-4 pt-3 pb-[max(.75rem,env(safe-area-inset-bottom))] lg:hidden">
+        <div>
+          <p className="text-xs text-muted-foreground">{quoted ? "جمع اقامت" : "نرخ پایهٔ هر شب"}</p>
+          <p className="text-display text-xl text-ink">{toman(quoted ? quoted.total_price : stay.base_price_per_night)}</p>
+        </div>
+        <Button
+          className="rounded-xl border-2 border-ink bg-lapis font-bold shadow-[var(--shadow-journal-sm)]"
+          disabled={submitting || (ready && quote.isPending)}
+          onClick={() => {
+            if (!quoted) openDates();
+            else if (selectedTaken) waitButtonRef.current?.focus();
+            else bookOrSignIn();
+          }}
+        >
+          {quoted ? (selectedTaken ? "مشاهدهٔ صف انتظار" : "ادامهٔ رزرو") : ready && quote.isPending ? "در حال محاسبه…" : "انتخاب تاریخ"}
+        </Button>
+      </div>
 
       <AlertDialog open={waitOffer} onOpenChange={setWaitOffer}>
         <AlertDialogContent>

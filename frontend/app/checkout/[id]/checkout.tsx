@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { StampSeal } from "@/components/stamp-seal";
 import { api, errorMessage } from "@/lib/api";
-import { bookingStatusLabel, fa, jWeekday, toman } from "@/lib/format";
+import { bookingStatusLabel, fa, jWeekday, nightsBetween, toman } from "@/lib/format";
 import { startPayment } from "@/lib/payments";
 import type { Booking } from "@/lib/types";
 
@@ -72,6 +72,9 @@ export function Checkout({ id }: { id: number }) {
 
   const mm = Math.floor(left / 60000);
   const ss = Math.floor((left % 60000) / 1000);
+  const released = b.status === "cancelled" || b.status === "expired";
+  const paid = b.payments.reduce((total, p) => p.status === "success" || p.status === "refunded" ? total + p.amount : total, 0);
+  const refunded = b.payments.reduce((total, p) => p.status === "refunded" ? total + p.amount : total, 0);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -91,7 +94,7 @@ export function Checkout({ id }: { id: number }) {
               <Link href={`/stays/${b.accommodation_id}`} className="hover:underline">{b.accommodation_title}</Link>
             </h2>
             <p className="flex items-center gap-2 text-sm"><CalendarDays className="size-4 text-lapis" /> {jWeekday(b.check_in)} تا {jWeekday(b.check_out)}</p>
-            <p className="flex items-center gap-2 text-sm"><Users className="size-4 text-lapis" /> {fa(b.guests_count)} مسافر، {fa(b.nights.length)} شب، {b.city}</p>
+            <p className="flex items-center gap-2 text-sm"><Users className="size-4 text-lapis" /> {fa(b.guests_count)} مسافر، {fa(nightsBetween(b.check_in, b.check_out))} شب، {b.city}</p>
           </div>
         </div>
         {/* perforation */}
@@ -100,19 +103,37 @@ export function Checkout({ id }: { id: number }) {
           <span className="absolute -right-3 -bottom-3 size-6 rounded-full border-2 border-ink bg-paper" />
         </div>
         <div className="space-y-3 border-t-2 border-dashed border-ink/40 bg-muted/40 p-5 md:border-t-0">
-          <ul className="space-y-1 text-sm">
-            {b.nights.map((n) => (
-              <li key={n.night} className="flex justify-between gap-2">
-                <span className="text-muted-foreground">{jWeekday(n.night)}</span>
-                <span className="tabular-nums">{toman(n.price)}</span>
-              </li>
-            ))}
-          </ul>
-          <Separator />
+          {b.nights.length > 0 && (
+            <>
+              <ul className="space-y-1 text-sm">
+                {b.nights.map((n) => (
+                  <li key={n.night} className="flex justify-between gap-2">
+                    <span className="text-muted-foreground">{jWeekday(n.night)}</span>
+                    <span className="tabular-nums">{toman(n.price)}</span>
+                  </li>
+                ))}
+              </ul>
+              <Separator />
+            </>
+          )}
           <div className="flex items-center justify-between">
-            <span className="font-bold">جمع</span>
+            <span className="font-bold">{released ? "مبلغ اولیهٔ رزرو" : "جمع"}</span>
             <span className="text-display text-2xl">{toman(b.total_price)}</span>
           </div>
+          {released && (
+            <>
+              <div className="flex justify-between gap-2 text-sm">
+                <span>مبلغ پرداخت‌شده</span>
+                <span>{toman(paid)}</span>
+              </div>
+              {refunded > 0 && (
+                <div className="flex justify-between gap-2 text-sm">
+                  <span>مبلغ بازپرداخت‌شده</span>
+                  <span>{toman(refunded)}</span>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -158,7 +179,7 @@ export function Checkout({ id }: { id: number }) {
       )}
       {b.status === "cancelled" && (
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          <p className="text-muted-foreground">این رزرو لغو شد. اگر پرداخت کرده بودی، مبلغ برگشت داده شد.</p>
+          <p className="text-muted-foreground">این رزرو لغو شد و شب‌های آن آزاد شدند.</p>
           <Button asChild variant="outline"><Link href="/stays">یک مقصد دیگر پیدا کن</Link></Button>
         </div>
       )}

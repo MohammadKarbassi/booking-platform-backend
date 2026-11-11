@@ -202,6 +202,33 @@
     stroke-dashoffset: 0;
   }
 }
+/* logotype: words drop in, «ایران» pops (components/hero-logotype.tsx) */
+@keyframes word-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-0.55em) rotate(-5deg);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes word-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 @keyframes radar-sweep {
   to {
     transform: rotate(360deg);

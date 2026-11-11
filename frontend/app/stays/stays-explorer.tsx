@@ -96,7 +96,7 @@ function FiltersSheet({ p, apply }: { p: SearchParams; apply: (patch: Partial<Se
             <Input id="q" value={q} onChange={(e) => setQ(e.target.value)} placeholder="مثلاً کلبه" />
           </div>
           <div className="space-y-4">
-            <Label>قیمت هر شب</Label>
+            <Label>نرخ پایهٔ هر شب</Label>
             <Slider
               min={0}
               max={PRICE_MAX}
@@ -175,15 +175,17 @@ export function StaysExplorer() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [p.page]);
 
-  const total = res.data?.total ?? 0;
+  const updating = res.isPending || res.isPlaceholderData;
+  const total = updating ? 0 : res.data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const stayQuery = `?${toQuery({ check_in: p.check_in, check_out: p.check_out, guests: p.guests })}`;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <SearchBar
-        key={sp.toString()}
+        key={JSON.stringify([p.city_id, p.check_in, p.check_out, p.guests])}
         initial={{ city_id: p.city_id, check_in: p.check_in, check_out: p.check_out, guests: p.guests ?? 2 }}
+        onSearch={apply}
       />
 
       <div className="mt-10 flex flex-wrap items-end justify-between gap-4">
@@ -192,8 +194,11 @@ export function StaysExplorer() {
             {landmark ? `نزدیک ${landmark.name}` : city ? `اقامتگاه‌های ${city.name}` : "همهٔ اقامتگاه‌ها"}
           </h1>
           <p className="mt-1 text-muted-foreground" aria-live="polite">
-            {res.isLoading ? "در حال گشتن…" : `${fa(total)} اقامتگاه پیدا شد`}
-            {p.check_in && p.check_out && "، فقط آن‌هایی که در این تاریخ آزادند"}
+            {updating
+              ? "در حال به‌روزرسانی نتایج…"
+              : res.isError
+                ? "جست‌وجو انجام نشد."
+                : `${fa(total)} اقامتگاه پیدا شد${p.check_in && p.check_out ? "، آزاد در تاریخ انتخاب‌شده" : ""}`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -265,7 +270,7 @@ export function StaysExplorer() {
         })}
       </div>
 
-      <div className="mt-10">
+      <div className="mt-10" aria-busy={updating}>
         {res.isError ? (
           <Empty className="journal">
             <EmptyHeader>
@@ -276,7 +281,7 @@ export function StaysExplorer() {
               <Button onClick={() => res.refetch()}>دوباره امتحان کن</Button>
             </EmptyContent>
           </Empty>
-        ) : !res.isLoading && total === 0 ? (
+        ) : !updating && total === 0 ? (
           <Empty className="journal py-16">
             <EmptyHeader>
               <EmptyMedia variant="icon">
@@ -295,11 +300,11 @@ export function StaysExplorer() {
           </Empty>
         ) : view === "map" ? (
           <div className="journal h-[620px] overflow-hidden">
-            {res.data && <StaysMap stays={res.data.items} />}
+            {!updating && res.data && <StaysMap stays={res.data.items} />}
           </div>
         ) : (
           <div className="grid gap-x-7 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-            {res.isLoading
+            {updating
               ? Array.from({ length: 6 }, (_, i) => <StayPostcardSkeleton key={i} />)
               : res.data?.items.map((s, i) => <StayPostcard key={s.id} stay={s} index={i} query={stayQuery} />)}
           </div>

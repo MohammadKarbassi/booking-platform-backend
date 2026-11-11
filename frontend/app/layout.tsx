@@ -1,12 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Lalezar, Vazirmatn } from "next/font/google";
+import localFont from "next/font/local";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import "./globals.css";
 
-const vazir = Vazirmatn({ variable: "--font-vazir", subsets: ["arabic", "latin"], display: "swap" });
-const lalezar = Lalezar({ variable: "--font-lalezar", weight: "400", subsets: ["arabic", "latin"], display: "swap" });
+const vazir = localFont({
+  src: "./fonts/Vazirmatn.woff2",
+  variable: "--font-vazir",
+  weight: "100 900",
+  display: "swap",
+});
+const lalezar = localFont({
+  src: "./fonts/Lalezar-Regular.woff2",
+  variable: "--font-lalezar",
+  weight: "400",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: { default: "دور ایران | دورت بگردم؛ ایران", template: "%s | دور ایران" },

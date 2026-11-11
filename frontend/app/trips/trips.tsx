@@ -37,7 +37,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Postmark } from "@/components/postmark";
 import { api, errorMessage } from "@/lib/api";
 import { displayName, useAuth } from "@/lib/auth";
-import { bookingStatusLabel, fa, jDay, jShort, jWeekday, parseDate, toman, today } from "@/lib/format";
+import { bookingStatusLabel, fa, jDay, jShort, jWeekday, nightsBetween, parseDate, toman, today } from "@/lib/format";
 import { startPayment } from "@/lib/payments";
 import { useProvinces, useStay } from "@/lib/queries";
 import type { Booking, BookingStatus } from "@/lib/types";
@@ -193,7 +193,7 @@ function ReceiptDialog({ b }: { b: Booking }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>رسید رزرو <span dir="ltr" className="font-mono">{b.booking_code}</span></DialogTitle>
-          <DialogDescription>{b.accommodation_title}، {fa(b.guests_count)} مسافر</DialogDescription>
+          <DialogDescription>{b.accommodation_title}، {fa(b.guests_count)} مسافر، {fa(nightsBetween(b.check_in, b.check_out))} شب</DialogDescription>
         </DialogHeader>
         <ul className="space-y-1 text-sm">
           {b.nights.map((n) => (
@@ -201,7 +201,7 @@ function ReceiptDialog({ b }: { b: Booking }) {
           ))}
           {!b.nights.length && <li className="text-muted-foreground">شب‌های این رزرو آزاد شده‌اند.</li>}
         </ul>
-        <div className="flex justify-between border-t pt-3 font-bold"><span>جمع</span><span>{toman(b.total_price)}</span></div>
+        <div className="flex justify-between border-t pt-3 font-bold"><span>{b.status === "cancelled" || b.status === "expired" ? "مبلغ اولیهٔ رزرو" : "جمع"}</span><span>{toman(b.total_price)}</span></div>
         {b.payments.length > 0 && (
           <div className="space-y-1 rounded-lg bg-muted p-3 text-sm">
             <p className="font-semibold">پرداخت‌ها</p>

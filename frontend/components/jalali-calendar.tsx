@@ -48,6 +48,10 @@ export function JalaliCalendar(props: React.ComponentProps<typeof Calendar>) {
       locale={faIR}
       numerals="arabext"
       weekStartsOn={6}
+      labels={{
+        labelPrevious: () => "ماه قبل",
+        labelNext: () => "ماه بعد",
+      }}
       dateLib={jalaliLib as React.ComponentProps<typeof Calendar>["dateLib"]}
       {...props}
     />

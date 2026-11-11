@@ -116,6 +116,8 @@ export function DatesPicker({
   disabled,
   booked,
   minNights = 1,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   value: Dates;
   onChange: (d: Dates) => void;
@@ -124,8 +126,12 @@ export function DatesPicker({
   /** nights that are taken: still selectable (for the waitlist) but struck through */
   booked?: Date[];
   minNights?: number;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [localOpen, setLocalOpen] = useState(false);
+  const open = controlledOpen ?? localOpen;
+  const setOpen = onOpenChange ?? setLocalOpen;
   const wide = useMedia("(min-width: 768px)");
   const range: DateRange | undefined = value.check_in
     ? { from: parseDate(value.check_in), to: value.check_out ? parseDate(value.check_out) : undefined }

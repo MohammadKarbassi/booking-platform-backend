@@ -20,7 +20,15 @@ export function toQuery(v: Partial<SearchValue> & Record<string, unknown>) {
 }
 
 /** The travel-journal search bar: destination، dates، travellers → /stays */
-export function SearchBar({ initial, className }: { initial?: Partial<SearchValue>; className?: string }) {
+export function SearchBar({
+  initial,
+  className,
+  onSearch,
+}: {
+  initial?: Partial<SearchValue>;
+  className?: string;
+  onSearch?: (value: SearchValue) => void;
+}) {
   const router = useRouter();
   const [v, setV] = useState<SearchValue>({ guests: 2, ...initial });
 
@@ -30,7 +38,9 @@ export function SearchBar({ initial, className }: { initial?: Partial<SearchValu
       aria-label="جست‌وجوی اقامتگاه"
       onSubmit={(e) => {
         e.preventDefault();
-        router.push(`/stays?${toQuery(v)}`);
+        const search = v.check_out ? v : { ...v, check_in: undefined };
+        if (onSearch) onSearch(search);
+        else router.push(`/stays?${toQuery(search)}`);
       }}
       className={cn(
         "journal grid grid-cols-1 items-center gap-1 p-2 sm:grid-cols-2 lg:grid-cols-[1.1fr_1.4fr_0.9fr_auto]",
@@ -40,7 +50,7 @@ export function SearchBar({ initial, className }: { initial?: Partial<SearchValu
       <CityPicker value={v.city_id} onChange={(city_id) => setV((s) => ({ ...s, city_id }))} />
       <DatesPicker
         value={v}
-        onChange={(d) => setV((s) => ({ ...s, ...d }))}
+        onChange={({ check_in, check_out }) => setV((s) => ({ ...s, check_in, check_out }))}
         className="lg:border-x lg:border-dashed lg:border-ink/25 lg:rounded-none"
       />
       <GuestsPicker value={v.guests} onChange={(guests) => setV((s) => ({ ...s, guests }))} />

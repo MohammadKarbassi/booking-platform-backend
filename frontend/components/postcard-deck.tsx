@@ -11,8 +11,7 @@
   Rendered with CSS 3D transforms from one requestAnimationFrame loop instead of WebGL.
 */
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BrandMark } from "@/components/brand";
@@ -85,7 +84,14 @@ function splitTitle(title: string): [string, string] {
 
 type CardAnim = { rx: number; ry: number; z: number };
 
-export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React.ReactNode }) {
+export function PostcardDeck({
+  stays,
+  title,
+}: {
+  stays: StayCard[];
+  /** the logotype; told when the loader has finished so it can start its entrance */
+  title: (play: boolean) => React.ReactNode;
+}) {
   const router = useRouter();
   const sound = useSound();
   const soundRef = useRef(sound);
@@ -126,11 +132,6 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
   });
   const colors = useRef(new Map<string, string>());
 
-  const mounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
   const [loaded, setLoaded] = useState(0);
   const [count, setCount] = useState(0);
   const [loaderGone, setLoaderGone] = useState(false);
@@ -206,7 +207,7 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
     const resize = () => {
       const mobile = window.innerWidth < 768;
       // tall enough to dominate, but never wider than ~78% of a phone and clear of the title and the journal bar
-      const h = Math.round(Math.min(el.clientHeight * (mobile ? 0.58 : 0.72), 640, (el.clientWidth * 0.78) / CARD_RATIO));
+      const h = Math.round(Math.min(el.clientHeight * (mobile ? 0.52 : 0.72), 640, (el.clientWidth * 0.78) / CARD_RATIO));
       const w = Math.round(h * CARD_RATIO);
       const gap = mobile ? 40 : 80;
       el.style.setProperty("--card-w", `${w}px`);
@@ -349,7 +350,7 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
       ref={stage}
       role="region"
       aria-roledescription="کاروسل"
-      aria-label="کارت‌پستال‌های اقامتگاه‌ها؛ با چرخ ماوس، کشیدن یا کلیدهای جهت ورق بزن"
+      aria-label="کارت‌پستال‌های اقامتگاه‌ها؛ با کشیدن یا کلیدهای جهت ورق بزن"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -361,9 +362,9 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
       style={{ perspective: "1600px" }}
     >
       {/* title over the deck, like the reference page's centred logotype */}
-      <div className="pointer-events-none absolute inset-x-0 top-[3%] z-[400] flex justify-center">{title}</div>
+      <div className="pointer-events-none absolute inset-x-0 top-[3.5%] z-[400] flex justify-center">{title(loaderGone)}</div>
 
-      <div className="absolute inset-x-0 top-[58%] h-0 [transform-style:preserve-3d]">
+      <div className="absolute inset-x-0 top-[53%] h-0 md:top-[58%] [transform-style:preserve-3d]">
         {items.map((s, i) => {
           const [l1, l2] = splitTitle(s.title);
           return (
@@ -446,7 +447,7 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
       </div>
 
       {/* previous / next, for mouse users now that the wheel scrolls the page */}
-      <div className="absolute inset-x-0 top-[58%] z-[420] flex -translate-y-1/2 justify-between px-3 sm:px-6" data-sfx="off">
+      <div className="absolute inset-x-0 top-[53%] z-[420] md:top-[58%] flex -translate-y-1/2 justify-between px-3 sm:px-6" data-sfx="off">
         <button
           type="button"
           onClick={() => go(-1)}
@@ -481,20 +482,13 @@ export function PostcardDeck({ stays, title }: { stays: StayCard[]; title: React
         {current ? `کارت ${fa(active + 1)} از ${fa(n)}: ${current.title}، ${current.city}` : ""}
       </p>
 
-      {/* loader: counts to 100 while the photos load, then the deck is dealt (portalled: the stage's perspective
-          would otherwise trap a fixed overlay inside it) */}
-      {mounted &&
-        createPortal(
-          <div
-            className={`fixed inset-0 z-[1000] grid place-items-center bg-paper transition-opacity duration-500 ${loaderGone || !n ? "pointer-events-none opacity-0" : "opacity-100"}`}
-            aria-hidden={loaderGone || !n}
-          >
-            <span className="text-display text-7xl text-ink tabular-nums" role="status" aria-label="در حال آماده کردن کارت‌پستال‌ها">
-              {fa(Math.floor(count))}
-            </span>
-          </div>,
-          document.body,
-        )}
+      {n > 0 && !loaderGone && (
+        <div className="absolute inset-0 z-[440] grid place-items-center bg-paper">
+          <span className="text-display text-7xl text-ink tabular-nums" role="status" aria-label="در حال آماده کردن کارت‌پستال‌ها">
+            {fa(Math.floor(count))}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
