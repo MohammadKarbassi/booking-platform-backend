@@ -1,8 +1,15 @@
-# Booking Platform: ERD + Backend
-
 <div dir="rtl">
 
-پروژهٔ بوت‌کمپ: سامانهٔ رزرو اقامتگاه (مشابه جاباما) در دو مرحله.
+# دور ایران: سامانهٔ رزرو اقامتگاه
+
+**نسخهٔ آنلاین:** https://dor-iran.vercel.app · **API و Swagger:** https://dor-iran-api.vercel.app/docs
+
+![صفحهٔ اول «دور ایران»](docs/screenshot-hero.jpg)
+
+
+پروژهٔ بوت‌کمپ: سامانهٔ رزرو اقامتگاه (مشابه جاباما) در سه مرحله: طراحی دیتابیس، بک‌اند، و سایت کامل که به بک‌اند وصل است.
+
+**ورود در نسخهٔ آنلاین:** مسافر `09125555555`، مدیر `09120000000`. پیامک شبیه‌سازی شده و کد ورود روی صفحه نمایش داده می‌شود.
 
 ## مرحلهٔ ۱: طراحی دیتابیس (ERD)
 ۲۱ جدول و ۸ Enum برای PostgreSQL.
@@ -26,11 +33,11 @@ FastAPI، SQLAlchemy 2 و PostgreSQL 16، با مستندات Swagger و تست 
 
 ## مرحلهٔ ۳: فرانت‌اند «دور ایران»
 
-**نسخهٔ آنلاین:** https://dor-iran.vercel.app (بک‌اند: https://dor-iran-api.vercel.app/docs، دیتابیس Neon Postgres)
+روی Vercel مستقر است: سایت https://dor-iran.vercel.app، بک‌اند https://dor-iran-api.vercel.app روی دیتابیس Neon Postgres. هر push به GitHub خودکار deploy می‌شود.
 
 Next.js، Tailwind CSS و shadcn/ui، فارسی و راست‌به‌چپ، وصل به همین بک‌اند. تیتر: «ایران؛ دورت بگردم».
 - اجرا: `cd frontend && npm install && npm run dev`، بعد http://localhost:3000
-- راهنما و فهرست صفحه‌ها: [`frontend/README.md`](frontend/README.md)؛ سناریوی ویدئوی دمو: [`frontend/demo-script.md`](frontend/demo-script.md)
+- راهنما و فهرست صفحه‌ها: [`frontend/README.md`](frontend/README.md)؛ سناریو و متن ویدئوی دمو: [`docs/video`](docs/video)
 - **بالای صفحهٔ اول:** دستهٔ کارت‌پستال سه‌بعدی با رنگ و صدای هر مکان، بازسازی‌شده از رفتار سایت Netflix Voyage en France با مهندسی معکوس (REA)
 - **از یک جاذبه شروع کن:** پیدا کردن اقامتگاه بر اساس نزدیکی به جاذبه‌های طبیعی و گردشگری
 - **قطب‌نمای کشف:** جاذبه‌های اطراف هر اقامتگاه با جهت و فاصلهٔ واقعی

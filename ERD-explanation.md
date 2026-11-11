@@ -112,7 +112,7 @@
 
 ## ۷. متن ویدئو
 
-متن کامل در فایل `video-script.md` است.
+متن کامل در فایل `docs/video/video-script.md` است.
 
 ## ۸. ساختن لینک ERD
 **نسخهٔ Lucidchart (آماده):** https://lucid.app/lucidchart/364204e7-4e9d-47c8-b821-4c1305d35587/edit — لینک عمومی فقط‌خواندنی: https://lucid.app/lucidchart/364204e7-4e9d-47c8-b821-4c1305d35587/edit?invitationId=inv_fee3c583-3e1b-4c69-b19a-a37b14c9b60e تصویر با توضیح فارسی: `booking-erd-lucid.png`؛ با توضیح انگلیسی: `booking-erd-lucid-en.png`. ارائه: `presentation.html`.
