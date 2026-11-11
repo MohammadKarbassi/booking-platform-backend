@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { LayoutGrid, Map as MapIcon, SearchX, SlidersHorizontal } from "lucide-react";
+import { LayoutGrid, Map as MapIcon, MapPin, SearchX, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,7 +35,7 @@ import { SearchBar, toQuery } from "@/components/search-bar";
 import { StayPostcard, StayPostcardSkeleton } from "@/components/stay-postcard";
 import { StaysMap } from "@/components/maps";
 import { fa, toman } from "@/lib/format";
-import { useAmenities, useCities, useSearch, useTypes, type SearchParams } from "@/lib/queries";
+import { useAmenities, useCities, useLandmarks, useSearch, useTypes, type SearchParams } from "@/lib/queries";
 
 const PAGE_SIZE = 9;
 const PRICE_MAX = 500_000_000; // Rial (50 million Toman)
@@ -53,7 +53,9 @@ function readParams(sp: URLSearchParams): SearchParams & { view?: string } {
     min_price: num("min_price"),
     max_price: num("max_price"),
     q: sp.get("q") ?? undefined,
-    sort: (sp.get("sort") as SearchParams["sort"]) ?? "newest",
+    near_poi_id: num("near_poi_id"),
+    radius_km: num("radius_km"),
+    sort: (sp.get("sort") as SearchParams["sort"]) ?? (sp.get("near_poi_id") ? "distance" : "newest"),
     page: num("page") ?? 1,
     view: sp.get("view") ?? "cards",
   };
@@ -161,6 +163,8 @@ export function StaysExplorer() {
   const types = useTypes();
   const cities = useCities();
   const city = cities.data?.find((c) => c.id === p.city_id);
+  const landmarks = useLandmarks(p.radius_km ?? 40);
+  const landmark = landmarks.data?.find((l) => l.id === p.near_poi_id);
 
   const apply = (patch: Partial<SearchParams> & { view?: string }) => {
     const next = { ...p, page: 1, ...patch };
@@ -184,7 +188,9 @@ export function StaysExplorer() {
 
       <div className="mt-10 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-display text-4xl text-ink sm:text-5xl">{city ? `اقامتگاه‌های ${city.name}` : "همهٔ اقامتگاه‌ها"}</h1>
+          <h1 className="text-display text-4xl text-ink sm:text-5xl">
+            {landmark ? `نزدیک ${landmark.name}` : city ? `اقامتگاه‌های ${city.name}` : "همهٔ اقامتگاه‌ها"}
+          </h1>
           <p className="mt-1 text-muted-foreground" aria-live="polite">
             {res.isLoading ? "در حال گشتن…" : `${fa(total)} اقامتگاه پیدا شد`}
             {p.check_in && p.check_out && "، فقط آن‌هایی که در این تاریخ آزادند"}
@@ -200,6 +206,7 @@ export function StaysExplorer() {
               <SelectItem value="newest">تازه‌ترین</SelectItem>
               <SelectItem value="price_asc">ارزان‌ترین</SelectItem>
               <SelectItem value="price_desc">گران‌ترین</SelectItem>
+              {p.near_poi_id && <SelectItem value="distance">نزدیک‌ترین</SelectItem>}
             </SelectContent>
           </Select>
           <ToggleGroup
@@ -219,6 +226,24 @@ export function StaysExplorer() {
           </ToggleGroup>
         </div>
       </div>
+
+      {p.near_poi_id && (
+        <div className="journal-sm mt-5 flex flex-wrap items-center gap-3 p-3">
+          <MapPin className="size-5 text-anar" />
+          <span>
+            فقط اقامتگاه‌های تا {fa(p.radius_km ?? 40)} کیلومتری <strong>{landmark?.name ?? "این جاذبه"}</strong>
+            {landmark && `، ${landmark.city}`}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ms-auto"
+            onClick={() => apply({ near_poi_id: undefined, radius_km: undefined, sort: "newest" })}
+          >
+            <X /> برداشتن
+          </Button>
+        </div>
+      )}
 
       {/* type chips */}
       <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="نوع اقامتگاه">

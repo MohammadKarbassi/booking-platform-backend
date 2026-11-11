@@ -9,7 +9,7 @@ const vazir = Vazirmatn({ variable: "--font-vazir", subsets: ["arabic", "latin"]
 const lalezar = Lalezar({ variable: "--font-lalezar", weight: "400", subsets: ["arabic", "latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "دور ایران | دور ایران بگردیم", template: "%s | دور ایران" },
+  title: { default: "دور ایران | دورت بگردم؛ ایران", template: "%s | دور ایران" },
   description: "اقامتگاه‌هایی که نزدیک جاهای دیدنی ایران‌اند. پیدا کن، رزرو کن، کشف کن.",
 };
 

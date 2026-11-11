@@ -16,7 +16,7 @@ export function Brand({ className }: { className?: string }) {
   return (
     <Link href="/" className={cn("flex items-center gap-2 rounded-md", className)} aria-label="دور ایران، صفحهٔ اصلی">
       <BrandMark />
-      <span className="text-display text-[1.7rem] text-ink">دور ایران</span>
+      <span className="app-fg text-display text-[1.7rem]">دور ایران</span>
     </Link>
   );
 }

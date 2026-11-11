@@ -66,7 +66,7 @@ export function SiteHeader() {
   const loginHref = `/login?next=${encodeURIComponent(pathname)}`;
 
   return (
-    <header className="sticky top-0 z-40 border-b-2 border-ink bg-paper/90 backdrop-blur supports-[backdrop-filter]:bg-paper/75">
+    <header className="app-fg sticky top-0 z-40 border-b-2 border-[var(--app-fg,var(--ink))] bg-[color-mix(in_srgb,var(--app-bg,var(--paper))_88%,transparent)] backdrop-blur transition-[background-color,border-color] duration-300 ease-in-out">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
         <Brand />
         <nav aria-label="منوی اصلی" className="ms-4 hidden items-center gap-1 md:flex">

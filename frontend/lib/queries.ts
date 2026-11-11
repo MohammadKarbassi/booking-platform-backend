@@ -6,6 +6,7 @@ import type {
   Amenity,
   CalendarDay,
   City,
+  Landmark,
   Poi,
   PoiCategory,
   Province,
@@ -29,6 +30,13 @@ export const useAmenities = () =>
 export const usePoiCategories = () =>
   useQuery({ queryKey: ["poi-categories"], queryFn: () => api<PoiCategory[]>("/catalog/poi-categories"), staleTime: DAY });
 
+export const useLandmarks = (radius = 40) =>
+  useQuery({
+    queryKey: ["landmarks", radius],
+    queryFn: () => api<Landmark[]>("/catalog/points-of-interest", { query: { radius_km: radius } }),
+    staleTime: DAY,
+  });
+
 export type SearchParams = {
   city_id?: number;
   province_id?: number;
@@ -40,16 +48,19 @@ export type SearchParams = {
   min_price?: number;
   max_price?: number;
   q?: string;
-  sort?: "newest" | "price_asc" | "price_desc";
+  near_poi_id?: number;
+  radius_km?: number;
+  sort?: "newest" | "price_asc" | "price_desc" | "distance";
   page?: number;
   size?: number;
 };
 
-export const useSearch = (p: SearchParams) =>
+export const useSearch = (p: SearchParams, enabled = true) =>
   useQuery({
     queryKey: ["search", p],
     queryFn: () => api<SearchResult>("/accommodations", { query: p }),
     placeholderData: (prev) => prev,
+    enabled,
   });
 
 export const useStay = (id: number) =>
@@ -59,6 +70,7 @@ export const useNearby = (id: number, radius = 40) =>
   useQuery({
     queryKey: ["nearby", id, radius],
     queryFn: () => api<Poi[]>(`/accommodations/${id}/nearby`, { query: { radius_km: radius } }),
+    enabled: id > 0,
   });
 
 export const useReviews = (id: number) =>

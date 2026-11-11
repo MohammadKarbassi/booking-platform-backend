@@ -130,3 +130,15 @@ def test_admin_and_misc(users):
         "host_id": 1, "type_id": 1, "city_id": 1, "title": "x", "slug": "x", "address": "x", "latitude": 1,
         "longitude": 1, "base_capacity": 5, "max_capacity": 2, "base_price_per_night": 1})
     assert bad.status_code == 422
+
+
+def test_search_near_point_of_interest():
+    pois = c.get("/catalog/points-of-interest").json()
+    stars = next(p for p in pois if p["name"] == "درهٔ ستاره‌ها")
+    assert stars["stays_nearby"] >= 1
+    r = c.get("/accommodations", params={"near_poi_id": stars["id"], "radius_km": 10, "sort": "distance"}).json()
+    assert [a["slug"] for a in r["items"]][0] == "qeshm-beach-hut" and r["items"][0]["distance_km"] < 3
+    dists = [a["distance_km"] for a in r["items"]]
+    assert dists == sorted(dists)
+    assert c.get("/accommodations", params={"sort": "distance"}).status_code == 422
+    assert c.get("/accommodations", params={"near_poi_id": 99999}).status_code == 404

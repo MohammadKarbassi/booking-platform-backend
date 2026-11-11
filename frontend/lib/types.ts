@@ -19,6 +19,19 @@ export type StayCard = {
   longitude: number;
   status: AccommodationStatus;
   rating: Rating;
+  /** only when searching around a landmark (near_poi_id) */
+  distance_km?: number;
+};
+
+export type Landmark = {
+  id: number;
+  name: string;
+  category: string;
+  category_id: number;
+  city: string;
+  latitude: number;
+  longitude: number;
+  stays_nearby: number;
 };
 
 export type Amenity = { id: number; name: string; icon: string | null };

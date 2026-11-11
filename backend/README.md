@@ -65,7 +65,8 @@ npx -y newman run postman_collection.json
 |---|---|---|
 | Auth | `POST /auth/otp/request`، `POST /auth/otp/verify`، `GET/PATCH /auth/me` | ورود با کد یک‌بارمصرف و پروفایل |
 | Catalog | `GET /catalog/provinces`، `cities`، `accommodation-types`، `amenities`، `poi-categories` | داده‌های پایه |
-| Accommodations | `GET /accommodations` | جست‌وجو و فیلتر: شهر، استان، نوع، تاریخ آزاد، نفرات، امکانات، قیمت، مرتب‌سازی و صفحه‌بندی |
+| Catalog | `GET /catalog/points-of-interest` | جاذبه‌ها، هر کدام با تعداد اقامتگاه‌های فعال در شعاع `radius_km` |
+| Accommodations | `GET /accommodations` | جست‌وجو و فیلتر: شهر، استان، نوع، تاریخ آزاد، نفرات، امکانات، قیمت، **نزدیکی به جاذبه** (`near_poi_id`، `radius_km`، `sort=distance` با `distance_km` در پاسخ)، مرتب‌سازی و صفحه‌بندی |
 | | `GET /accommodations/{id}` | جزئیات کامل، عکس‌ها، امکانات، میزبان، مختصات نقشه، میانگین امتیاز |
 | | `GET /accommodations/{id}/quote` | قیمت هر شب و منبع آن (تقویم، قانون قیمت یا قیمت پایه) |
 | | `GET /accommodations/{id}/calendar` | آزاد یا پر بودن و قیمت هر روز |

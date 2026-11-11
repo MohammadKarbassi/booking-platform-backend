@@ -14,6 +14,13 @@ from ..services import sweep
 router = APIRouter(prefix="/accommodations", tags=["Accommodations"])
 
 
+def km_between(lat1, lon1, lat2, lon2):
+    """Haversine distance in km as a SQL expression; distance is computed from coordinates, never stored."""
+    la1, lo1, la2, lo2 = (func.radians(v) for v in (lat1, lon1, lat2, lon2))
+    return 6371 * 2 * func.asin(func.sqrt(
+        func.power(func.sin((la2 - la1) / 2), 2) + func.cos(la1) * func.cos(la2) * func.power(func.sin((lo2 - lo1) / 2), 2)))
+
+
 def get_active(db: Session, acc_id: int) -> Accommodation:
     acc = db.get(Accommodation, acc_id)
     if not acc or acc.status != AccommodationStatus.active:
@@ -26,7 +33,9 @@ def search(city_id: int | None = None, province_id: int | None = None, type_id: 
            check_in: date | None = None, check_out: date | None = None, guests: int | None = Query(None, ge=1),
            amenity_ids: list[int] = Query([]), min_price: int | None = None, max_price: int | None = None,
            q: str | None = Query(None, description="Search in title"),
-           sort: str = Query("newest", pattern="^(newest|price_asc|price_desc)$"),
+           near_poi_id: int | None = Query(None, description="Only stays around this point of interest"),
+           radius_km: float = Query(30, gt=0, le=200, description="Used with near_poi_id"),
+           sort: str = Query("newest", pattern="^(newest|price_asc|price_desc|distance)$"),
            page: int = Query(1, ge=1), size: int = Query(20, ge=1, le=100), db: Session = Depends(get_db)):
     sweep(db)
     stmt = select(Accommodation).where(Accommodation.status == AccommodationStatus.active)
@@ -58,11 +67,24 @@ def search(city_id: int | None = None, province_id: int | None = None, type_id: 
                             AccommodationCalendar.is_blocked, AccommodationCalendar.date >= check_in,
                             AccommodationCalendar.date < check_out),
             Accommodation.min_nights <= (check_out - check_in).days)
+    dist = None
+    if near_poi_id:
+        poi = db.get(PointOfInterest, near_poi_id)
+        if not poi:
+            raise HTTPException(404, "Point of interest not found")
+        dist = km_between(poi.latitude, poi.longitude, Accommodation.latitude, Accommodation.longitude)
+        stmt = stmt.where(dist <= radius_km)
+    elif sort == "distance":
+        raise HTTPException(422, "sort=distance needs near_poi_id")
     order = {"newest": Accommodation.id.desc(), "price_asc": Accommodation.base_price_per_night,
-             "price_desc": Accommodation.base_price_per_night.desc()}[sort]
+             "price_desc": Accommodation.base_price_per_night.desc(), "distance": dist}[sort]
     total = db.scalar(select(func.count()).select_from(stmt.subquery()))
-    items = db.scalars(stmt.order_by(order).offset((page - 1) * size).limit(size)).all()
-    return {"total": total, "page": page, "size": size, "items": [acc_card(a) for a in items]}
+    page_stmt = stmt.order_by(order).offset((page - 1) * size).limit(size)
+    if dist is None:
+        items = [acc_card(a) for a in db.scalars(page_stmt)]
+    else:
+        items = [{**acc_card(a), "distance_km": round(km, 2)} for a, km in db.execute(page_stmt.add_columns(dist))]
+    return {"total": total, "page": page, "size": size, "items": items}
 
 
 @router.get("/{acc_id}", summary="Full details: images, amenities, host, rules, rating, map location")

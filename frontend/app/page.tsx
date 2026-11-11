@@ -2,70 +2,50 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Compass } from "lucide-react";
+import { ArrowDown, ArrowLeft, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
 import { StayPostcard, StayPostcardSkeleton } from "@/components/stay-postcard";
 import { DiscoveryRadar, PoiList } from "@/components/discovery-radar";
 import { StaysMap } from "@/components/maps";
-import { Postmark } from "@/components/postmark";
-import { fa, jShort, today } from "@/lib/format";
+import { PostcardDeck } from "@/components/postcard-deck";
+import { JournalBar } from "@/components/journal-bar";
+import { LandmarkFinder } from "@/components/landmark-finder";
+import { WaitlistShowcase } from "@/components/waitlist-showcase";
+import { fa } from "@/lib/format";
 import { useCities, useNearby, useProvinces, useSearch } from "@/lib/queries";
-import type { StayCard } from "@/lib/types";
 
+/** The site's logotype over the deck: «دورت بگردم؛» / «ایران.», with the saffron route circling «دورت». */
 function HeroTitle() {
   return (
-    <h1 className="text-display text-[clamp(3.6rem,10vw,7.5rem)] text-ink">
-      <span className="relative inline-block px-[0.12em]">
-        <svg
-          aria-hidden
-          viewBox="0 0 200 120"
-          preserveAspectRatio="none"
-          className="absolute -inset-x-[0.28em] -inset-y-[0.18em] h-[calc(100%+0.36em)] w-[calc(100%+0.56em)] overflow-visible"
-        >
-          <path
-            d="M 172 22 C 205 48 196 100 112 110 C 30 118 -6 82 12 46 C 28 14 92 4 150 14 C 168 17 180 24 186 30"
-            fill="none"
-            stroke="var(--saffron)"
-            strokeWidth="7"
-            strokeLinecap="round"
-            strokeDasharray="14 11"
-            pathLength={1200}
-            style={{ ["--route-len" as string]: 1200, strokeDashoffset: 0 }}
-            className="motion-safe:animate-[route-draw_1.6s_cubic-bezier(.6,0,.2,1)_both]"
-          />
-          <circle cx="186" cy="30" r="7" fill="var(--anar)" stroke="var(--ink)" strokeWidth="2.5" />
-        </svg>
-        <span className="relative">دور</span>
-      </span>{" "}
-      ایران
-      <br />
-      بگردیم
+    <h1 className="app-fg text-display text-center text-[clamp(2.2rem,4.6vw,3.6rem)] leading-[0.95]">
+      <span className="block">
+        <span className="relative inline-block px-[0.1em]">
+          <svg
+            aria-hidden
+            viewBox="0 0 200 120"
+            preserveAspectRatio="none"
+            className="absolute -inset-x-[0.3em] -inset-y-[0.2em] h-[calc(100%+0.4em)] w-[calc(100%+0.6em)] overflow-visible"
+          >
+            <path
+              d="M 172 22 C 205 48 196 100 112 110 C 30 118 -6 82 12 46 C 28 14 92 4 150 14 C 168 17 180 24 186 30"
+              fill="none"
+              stroke="var(--saffron)"
+              strokeWidth="7"
+              strokeLinecap="round"
+              strokeDasharray="14 11"
+              pathLength={1200}
+              style={{ ["--route-len" as string]: 1200, strokeDashoffset: 0 }}
+              className="motion-safe:animate-[route-draw_1.6s_2.2s_cubic-bezier(.6,0,.2,1)_both]"
+            />
+            <circle cx="186" cy="30" r="7" fill="var(--anar)" stroke="var(--ink)" strokeWidth="2.5" />
+          </svg>
+          <span className="relative">دورت</span>
+        </span>{" "}
+        بگردم؛
+      </span>
+      <span className="block font-sans text-[0.78em] font-light tracking-tight">ایران.</span>
     </h1>
-  );
-}
-
-function PostcardStack({ stays }: { stays: StayCard[] }) {
-  const cards = stays.slice(0, 3);
-  const pose = [
-    "rotate-[-9deg] translate-x-[18%] translate-y-[6%] group-hover:rotate-[-14deg] group-hover:translate-x-[34%]",
-    "rotate-[6deg] -translate-x-[16%] translate-y-[2%] group-hover:rotate-[11deg] group-hover:-translate-x-[32%]",
-    "rotate-[-2deg] group-hover:-translate-y-[4%]",
-  ];
-  return (
-    <div className="group relative mx-auto aspect-[4/3.6] w-full max-w-[460px]" aria-hidden>
-      {cards.map((s, i) => (
-        <div
-          key={s.id}
-          className={`absolute inset-x-[8%] top-[6%] rounded-[6px] bg-white p-3 pb-10 shadow-[0_24px_40px_-18px_rgb(23_32_61/0.55)] ring-1 ring-ink/10 transition-transform duration-500 ease-out ${pose[i]}`}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={s.cover_image ?? ""} alt="" className="aspect-[4/3] w-full rounded-[3px] object-cover" />
-          <div className="absolute bottom-2.5 right-4 text-display text-xl text-ink">{s.city}</div>
-          {i === 2 && <Postmark city={s.city} date={jShort(today())} className="absolute bottom-1 left-2 w-32" />}
-        </div>
-      ))}
-    </div>
   );
 }
 
@@ -80,39 +60,45 @@ export default function Home() {
 
   return (
     <>
-      {/* hero */}
-      <section className="relative overflow-hidden border-b-2 border-ink">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-12 pb-16 lg:grid-cols-[1.15fr_1fr] lg:pt-16">
-          <div>
-            <p className="mb-5 inline-flex items-center gap-2 rounded-full border-[1.5px] border-ink bg-card px-3 py-1 text-sm font-semibold">
-              <Compass className="size-4 text-lapis" />
-              {all.data ? (
-                <>
-                  {fa(all.data.total)} اقامتگاه در {fa(cities.data?.length ?? 0)} شهر و {fa(provinces.data?.length ?? 0)} استان
-                </>
-              ) : (
-                "در حال باز کردن نقشه…"
-              )}
-            </p>
-            <HeroTitle />
-            <p className="mt-6 max-w-xl text-lg leading-9 text-ink/80">
-              جایی بخواب که صبحش یک کشف تازه باشد. برای هر اقامتگاه نشانت می‌دهیم دور و برش چه خبر است: از آبشار پشت
-              روستا تا بازار سه کوچه آن‌طرف‌تر.
-            </p>
-            <span className="mt-4 inline-block -rotate-2 rounded-md bg-anar px-3 py-1 text-sm font-bold text-white shadow-[var(--shadow-journal-sm)]">
-              دورت بگردم، ایران!
-            </span>
+      {/* hero: the postcard deck (see components/postcard-deck.tsx) */}
+      <section className="relative h-[calc(100svh-4rem)] min-h-[600px] border-b-2 border-ink" aria-label="کارت‌پستال‌های دور ایران">
+        {all.isError ? (
+          <div className="grid h-full place-items-center px-4 text-center">
+            <div>
+              <HeroTitle />
+              <p className="mt-6 text-muted-foreground">کارت‌پستال‌ها نیامدند: {(all.error as Error).message}</p>
+              <Button className="mt-4 bg-lapis" onClick={() => all.refetch()}>دوباره امتحان کن</Button>
+            </div>
           </div>
-          {stays.length >= 3 ? <PostcardStack stays={stays.slice(2, 5).concat(stays).slice(0, 3)} /> : <div className="aspect-[4/3.6]" />}
-        </div>
-        <div className="mx-auto max-w-5xl px-4 pb-14">
-          <SearchBar />
-        </div>
+        ) : (
+          <PostcardDeck stays={stays} title={<HeroTitle />} />
+        )}
+        <JournalBar />
+        <a
+          href="#discover"
+          className="absolute bottom-7 left-6 z-[460] hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold app-fg opacity-70 hover:opacity-100 lg:flex"
+        >
+          <ArrowDown className="size-4 motion-safe:animate-bounce" /> قطب‌نما و نقشه
+        </a>
       </section>
+
+      {/* a plain search for whoever skips the deck */}
+      <section className="mx-auto max-w-5xl px-4 pt-14">
+        <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+          <Compass className="size-4 text-lapis" />
+          {all.data
+            ? `${fa(all.data.total)} اقامتگاه در ${fa(cities.data?.length ?? 0)} شهر و ${fa(provinces.data?.length ?? 0)} استان`
+            : "در حال باز کردن نقشه…"}
+        </p>
+        <SearchBar />
+      </section>
+
+      {/* distinctive feature 1: start from a landmark */}
+      <LandmarkFinder />
 
       {/* the compass teaser: the backend's points-of-interest feature, live */}
       {featured && (
-        <section className="mx-auto max-w-7xl px-4 pt-20">
+        <section id="discover" className="mx-auto max-w-7xl scroll-mt-20 px-4 pt-20">
           <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
             <div>
               <p className="text-sm font-bold text-anar">قطب‌نمای کشف</p>
@@ -145,6 +131,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* distinctive feature 2: the booking waitlist */}
+      <WaitlistShowcase />
 
       {/* postcards */}
       <section className="mx-auto max-w-7xl px-4 pt-24">

@@ -116,8 +116,15 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    /* --app-bg is set while a home-page postcard is hovered (components/postcard-deck.tsx) */
+    background-color: var(--app-bg, var(--background));
+    transition: background-color 0.3s ease-in-out;
     font-feature-settings: "ss01";
+  }
+  .app-fg {
+    color: var(--app-fg, var(--ink));
+    transition: color 0.3s ease-in-out;
   }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
@@ -158,17 +165,19 @@
     box-shadow: 0 0 0 var(--ink);
   }
 
-  /* Postage stamp: perforated edge cut with a radial-gradient mask */
+  /* Postage stamp: a solid centre plus a row of round holes along every edge (two mask layers, unioned) */
   .stamp {
-    --tooth: 5px;
-    padding: 6px;
-    background: #fff;
+    --tooth: 4px;
+    padding: calc(2 * var(--tooth));
+    background: #fffdf8;
     -webkit-mask:
-      radial-gradient(circle var(--tooth) at var(--tooth) var(--tooth), #0000 98%, #000) calc(-1 * var(--tooth))
-        calc(-1 * var(--tooth)) / calc(2 * var(--tooth)) calc(2 * var(--tooth));
+      radial-gradient(var(--tooth), #0000 98%, #000) round calc(-1.5 * var(--tooth)) calc(-1.5 * var(--tooth)) /
+        calc(3 * var(--tooth)) calc(3 * var(--tooth)),
+      linear-gradient(#000 0 0) no-repeat 50% / calc(100% - 3 * var(--tooth)) calc(100% - 3 * var(--tooth));
     mask:
-      radial-gradient(circle var(--tooth) at var(--tooth) var(--tooth), #0000 98%, #000) calc(-1 * var(--tooth))
-        calc(-1 * var(--tooth)) / calc(2 * var(--tooth)) calc(2 * var(--tooth));
+      radial-gradient(var(--tooth), #0000 98%, #000) round calc(-1.5 * var(--tooth)) calc(-1.5 * var(--tooth)) /
+        calc(3 * var(--tooth)) calc(3 * var(--tooth)),
+      linear-gradient(#000 0 0) no-repeat 50% / calc(100% - 3 * var(--tooth)) calc(100% - 3 * var(--tooth));
   }
 
   /* subtle paper grain on the page ground */

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { AudioLines, Star } from "lucide-react";
+import { AudioLines, MapPin, Star } from "lucide-react";
+import { distanceLabel } from "@/components/discovery-radar";
 import { FavoriteButton } from "@/components/favorite-button";
 import { Postmark } from "@/components/postmark";
 import { fa, tomanShort } from "@/lib/format";
@@ -82,6 +83,11 @@ export function StayPostcard({ stay, index = 0, query = "" }: { stay: StayCard; 
               </span>
             )}
           </div>
+          {stay.distance_km !== undefined && (
+            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-saffron/25 px-2 py-0.5 text-xs font-bold">
+              <MapPin className="size-3" /> {distanceLabel(stay.distance_km)} تا جاذبه
+            </p>
+          )}
           <p className="mt-0.5 text-sm text-muted-foreground">
             {stay.type}، {fa(stay.bedrooms)} خواب، تا {fa(stay.max_capacity)} نفر
           </p>

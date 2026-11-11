@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..models import AccommodationType, Amenity, City, PoiCategory, Province
+from ..models import Accommodation, AccommodationStatus, AccommodationType, Amenity, City, PoiCategory, PointOfInterest, Province
+from .accommodations import km_between
 
 router = APIRouter(prefix="/catalog", tags=["Catalog"])
 
@@ -34,3 +35,20 @@ def amenities(db: Session = Depends(get_db)):
 @router.get("/poi-categories")
 def poi_categories(db: Session = Depends(get_db)):
     return [{"id": c.id, "name": c.name} for c in db.scalars(select(PoiCategory))]
+
+
+@router.get("/points-of-interest", summary="Landmarks, each with how many active stays lie within radius_km")
+def points_of_interest(category_id: int | None = None, radius_km: float = Query(30, gt=0, le=200),
+                       db: Session = Depends(get_db)):
+    q = select(PointOfInterest).order_by(PointOfInterest.name)
+    if category_id:
+        q = q.where(PointOfInterest.category_id == category_id)
+    out = []
+    for p in db.scalars(q):
+        stays = db.scalar(select(func.count()).select_from(Accommodation).where(
+            Accommodation.status == AccommodationStatus.active,
+            km_between(p.latitude, p.longitude, Accommodation.latitude, Accommodation.longitude) <= radius_km))
+        out.append({"id": p.id, "name": p.name, "category": p.category.name, "category_id": p.category_id,
+                    "city": p.city.name, "latitude": float(p.latitude), "longitude": float(p.longitude),
+                    "stays_nearby": stays})
+    return out
