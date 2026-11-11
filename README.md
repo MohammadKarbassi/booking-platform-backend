@@ -25,7 +25,7 @@ FastAPI، SQLAlchemy 2 و PostgreSQL 16، با مستندات Swagger و تست 
 - جاذبه‌های اطراف به ترتیب فاصله، که از مختصات در خود دیتابیس حساب می‌شود.
 
 ## مرحلهٔ ۳: فرانت‌اند «دور ایران»
-Next.js، Tailwind CSS و shadcn/ui، فارسی و راست‌به‌چپ، وصل به همین بک‌اند. تیتر: «دورت بگردم؛ ایران».
+Next.js، Tailwind CSS و shadcn/ui، فارسی و راست‌به‌چپ، وصل به همین بک‌اند. تیتر: «ایران؛ دورت بگردم».
 - اجرا: `cd frontend && npm install && npm run dev`، بعد http://localhost:3000
 - راهنما و فهرست صفحه‌ها: [`frontend/README.md`](frontend/README.md)؛ سناریوی ویدئوی دمو: [`frontend/demo-script.md`](frontend/demo-script.md)
 - **بالای صفحهٔ اول:** دستهٔ کارت‌پستال سه‌بعدی با رنگ و صدای هر مکان، بازسازی‌شده از رفتار سایت Netflix Voyage en France با مهندسی معکوس (REA)

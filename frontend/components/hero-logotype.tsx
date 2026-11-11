@@ -1,12 +1,12 @@
 "use client";
 
 /*
-  The site's logotype: «دورت بگردم؛» over «ایران», with a red map pin landing on the start of «دورت».
-  Type: Vazirmatn Black for the first line, Vazirmatn Medium for «ایران» (the self-hosted font in app/fonts).
+  The site's logotype: «ایران؛» over «دورت بگردم», a ring orbiting «ایران» and a red map pin on its first letter.
+  Type: Vazirmatn Black for «ایران؛», Vazirmatn Medium for «دورت بگردم» (the self-hosted font in app/fonts).
 
   Entrance (starts when `play` turns true, i.e. after the deck's loader):
-  «دورت», «بگردم؛» rise in → «ایران» appears and its orbit ring draws itself → the pin drops from above and lands with a bounce,
-  then bobs gently over a faint pulse, like a live location on a map.
+  «ایران؛» pops in → its orbit ring draws itself and the red traveller starts circling → «دورت», «بگردم» rise in
+  below → the pin drops onto «ایران» with a bounce, then bobs gently over a faint pulse.
   With prefers-reduced-motion everything simply appears in place.
 */
 
@@ -50,7 +50,7 @@ function Ring({ layer, play, id }: { layer: "far" | "near"; play: boolean; id: s
       viewBox="0 0 400 140"
       aria-hidden
       className={cn(
-        "pointer-events-none absolute top-1/2 left-1/2 w-[200%] -translate-x-1/2 -translate-y-[44%] overflow-visible",
+        "pointer-events-none absolute top-1/2 left-1/2 w-[160%] -translate-x-1/2 -translate-y-[44%] overflow-visible",
         near ? "z-20" : "z-0",
       )}
     >
@@ -65,7 +65,7 @@ function Ring({ layer, play, id }: { layer: "far" | "near"; play: boolean; id: s
           d={near ? NEAR : FAR}
           fill="none"
           stroke="var(--saffron)"
-          strokeWidth={near ? 8 : 6}
+          strokeWidth={near ? 5.5 : 4.5}
           strokeLinecap="round"
           strokeDasharray="16 12"
           opacity={near ? 1 : 0.6}
@@ -73,13 +73,13 @@ function Ring({ layer, play, id }: { layer: "far" | "near"; play: boolean; id: s
           style={{ ["--route-len" as string]: 600 }}
           className={cn(
             "[stroke-dashoffset:600]",
-            play && "motion-safe:animate-[route-draw_1.1s_0.75s_cubic-bezier(.6,0,.2,1)_forwards] motion-reduce:[stroke-dashoffset:0]",
+            play && "motion-safe:animate-[route-draw_1.1s_0.4s_cubic-bezier(.6,0,.2,1)_forwards] motion-reduce:[stroke-dashoffset:0]",
           )}
         />
         <g clipPath={near ? `url(#near-${id})` : undefined}>
-          <circle r={near ? 13 : 10} fill="var(--anar)" stroke="var(--paper)" strokeWidth="4" opacity={near ? 1 : 0.7}>
-            <animate attributeName="opacity" from="0" to={near ? 1 : 0.7} begin="1.7s" dur="0.3s" fill="freeze" />
-            <animateMotion path={FULL} begin="1.7s" dur={LAP} repeatCount="indefinite" rotate="auto" />
+          <circle r={near ? 10 : 8} fill="var(--anar)" stroke="var(--paper)" strokeWidth="3" opacity={near ? 1 : 0.7}>
+            <animate attributeName="opacity" from="0" to={near ? 1 : 0.7} begin="1.4s" dur="0.3s" fill="freeze" />
+            <animateMotion path={FULL} begin="1.4s" dur={LAP} repeatCount="indefinite" rotate="auto" />
           </circle>
         </g>
       </g>
@@ -92,13 +92,13 @@ function MapPin({ play }: { play: boolean }) {
   return (
     <span
       aria-hidden
-      className="pointer-events-none absolute -top-[0.58em] -right-[0.42em] block w-[0.42em]"
+      className="pointer-events-none absolute -top-[0.5em] -right-[0.36em] z-30 block w-[0.38em]"
     >
       {/* a faint pulse where the pin touches down */}
       <span
         className={cn(
           "absolute top-[118%] left-1/2 block h-[0.12em] w-[0.42em] -translate-x-1/2 rounded-[50%] border-2 border-anar opacity-0",
-          play && "motion-safe:animate-[pin-pulse_2.4s_1.6s_ease-out_infinite]",
+          play && "motion-safe:animate-[pin-pulse_2.4s_2.1s_ease-out_infinite]",
         )}
       />
       {/* the pin: drop + bounce, then a slow bob */}
@@ -106,7 +106,7 @@ function MapPin({ play }: { play: boolean }) {
         className={cn(
           "block origin-bottom opacity-0",
           play &&
-            "motion-safe:animate-[pin-drop_.9s_.55s_cubic-bezier(.3,1.4,.5,1)_forwards,pin-bob_2.4s_1.6s_ease-in-out_infinite] motion-reduce:opacity-100",
+            "motion-safe:animate-[pin-drop_.9s_1s_cubic-bezier(.3,1.4,.5,1)_forwards,pin-bob_2.4s_2.1s_ease-in-out_infinite] motion-reduce:opacity-100",
         )}
       >
         <svg viewBox="0 0 40 52" className="block w-full overflow-visible drop-shadow-[0_3px_3px_rgb(23_32_61/0.25)]">
@@ -127,30 +127,32 @@ function MapPin({ play }: { play: boolean }) {
 export function HeroLogotype({ play = true, className }: { play?: boolean; className?: string }) {
   const id = useId().replace(/:/g, "");
   // class names spelled out in full so Tailwind can see them
-  const rise1 = cn("inline-block opacity-0", play && "motion-safe:animate-[word-drop_.6s_0s_cubic-bezier(.2,.9,.3,1.2)_forwards] motion-reduce:opacity-100");
-  const rise2 = cn("inline-block opacity-0", play && "motion-safe:animate-[word-drop_.6s_.12s_cubic-bezier(.2,.9,.3,1.2)_forwards] motion-reduce:opacity-100");
+  const rise1 = cn("inline-block opacity-0", play && "motion-safe:animate-[word-drop_.6s_.45s_cubic-bezier(.2,.9,.3,1.2)_forwards] motion-reduce:opacity-100");
+  const rise2 = cn("inline-block opacity-0", play && "motion-safe:animate-[word-drop_.6s_.57s_cubic-bezier(.2,.9,.3,1.2)_forwards] motion-reduce:opacity-100");
 
   return (
     <h1
       className={cn("app-fg flex flex-col items-center text-center font-sans leading-[1.05]", className)}
-      aria-label="دورت بگردم؛ ایران"
+      aria-label="ایران؛ دورت بگردم"
     >
-      <span className="relative flex gap-[0.26em] text-[clamp(2.8rem,6.2vw,5.6rem)] font-black tracking-tight" aria-hidden>
-        <span className={rise1}>دورت</span>
-        <span className={rise2}>بگردم؛</span>
-        <MapPin play={play} />
-      </span>
-      <span aria-hidden className="relative mt-[0.16em] inline-block px-[0.2em] text-[clamp(1.9rem,3.6vw,3.2rem)] font-medium">
+      {/* line 1: «ایران؛», circled by its orbit, with the pin on its first letter */}
+      <span aria-hidden className="relative inline-block px-[0.15em] text-[clamp(3.2rem,7vw,6.2rem)] font-black tracking-tight">
         <Ring layer="far" play={play} id={id} />
         <span
           className={cn(
             "relative z-10 inline-block opacity-0",
-            play && "motion-safe:animate-[word-pop_.6s_.32s_cubic-bezier(.2,.9,.3,1.3)_forwards] motion-reduce:opacity-100",
+            play && "motion-safe:animate-[word-pop_.6s_0s_cubic-bezier(.2,.9,.3,1.3)_forwards] motion-reduce:opacity-100",
           )}
         >
-          ایران
+          ایران؛
         </span>
         <Ring layer="near" play={play} id={id} />
+        <MapPin play={play} />
+      </span>
+      {/* line 2: «دورت بگردم» */}
+      <span className="mt-[0.3em] flex gap-[0.26em] text-[clamp(1.7rem,3.4vw,3rem)] font-medium" aria-hidden>
+        <span className={rise1}>دورت</span>
+        <span className={rise2}>بگردم</span>
       </span>
     </h1>
   );

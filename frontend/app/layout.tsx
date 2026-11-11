@@ -19,7 +19,7 @@ const lalezar = localFont({
 });
 
 export const metadata: Metadata = {
-  title: { default: "دور ایران | دورت بگردم؛ ایران", template: "%s | دور ایران" },
+  title: { default: "دور ایران | ایران؛ دورت بگردم", template: "%s | دور ایران" },
   description: "اقامتگاه‌هایی که نزدیک جاهای دیدنی ایران‌اند. پیدا کن، رزرو کن، کشف کن.",
 };
 
