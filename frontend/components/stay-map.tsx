@@ -23,6 +23,18 @@ const pricePin = (s: StayCard) =>
     iconAnchor: [40, 14],
   });
 
+/*
+  No animated zooms: these maps are rebuilt whenever the place changes, and Leaflet crashes
+  ("Cannot read properties of undefined (reading '_leaflet_pos')") if a map is removed while a zoom
+  transition is still running. Instant zooms leave nothing pending when the map goes away.
+*/
+const MAP_OPTIONS: L.MapOptions = {
+  scrollWheelZoom: false,
+  zoomAnimation: false,
+  fadeAnimation: false,
+  markerZoomAnimation: false,
+};
+
 function tiles(map: L.Map) {
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -46,7 +58,7 @@ export function StayMap({
 
   useEffect(() => {
     if (!el.current) return;
-    const m = L.map(el.current, { scrollWheelZoom: false, attributionControl: true }).setView([center.lat, center.lng], 13);
+    const m = L.map(el.current, MAP_OPTIONS).setView([center.lat, center.lng], 13, { animate: false });
     tiles(m);
     L.marker([center.lat, center.lng], { icon: pin("#f2b01e", 26, "#17203d") }).addTo(m).bindTooltip(center.label);
     pois.forEach((p) => {
@@ -59,6 +71,7 @@ export function StayMap({
       m.fitBounds(L.latLngBounds([[center.lat, center.lng], ...pois.map((p) => [p.latitude, p.longitude] as [number, number])]), {
         padding: [30, 30],
         maxZoom: 14,
+        animate: false,
       });
     }
     map.current = m;
@@ -83,11 +96,11 @@ export function StaysMap({ stays }: { stays: StayCard[] }) {
   const el = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!el.current) return;
-    const m = L.map(el.current, { scrollWheelZoom: false }).setView([32.4, 53.7], 5);
+    const m = L.map(el.current, MAP_OPTIONS).setView([32.4, 53.7], 5, { animate: false });
     tiles(m);
     stays.forEach((s) => L.marker([s.latitude, s.longitude], { icon: pricePin(s) }).addTo(m));
-    if (stays.length > 1) m.fitBounds(L.latLngBounds(stays.map((s) => [s.latitude, s.longitude] as [number, number])), { padding: [40, 40] });
-    else if (stays.length === 1) m.setView([stays[0].latitude, stays[0].longitude], 11);
+    if (stays.length > 1) m.fitBounds(L.latLngBounds(stays.map((s) => [s.latitude, s.longitude] as [number, number])), { padding: [40, 40], animate: false });
+    else if (stays.length === 1) m.setView([stays[0].latitude, stays[0].longitude], 11, { animate: false });
     return () => {
       m.remove();
     };
