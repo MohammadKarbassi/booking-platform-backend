@@ -67,7 +67,9 @@ export function StayMap({
       m.remove();
       mk.clear();
     };
-  }, [center.lat, center.lng, center.label, pois]);
+    // rebuild only when the place or the set of pins really changes, not when a parent passes a new array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center.lat, center.lng, center.label, pois.map((p) => p.id).join(",")]);
 
   useEffect(() => {
     markers.current.forEach((mk, id) => (id === activeId ? mk.openTooltip() : mk.closeTooltip()));
